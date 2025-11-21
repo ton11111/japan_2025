@@ -2,7 +2,7 @@
 <html lang="zh-Hant">
 <head>
   <meta charset="UTF-8" />
-  <title>2025 九州旅行指揮中心 V24</title>
+  <title>2025 九州旅行指揮中心 V26</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
   
   <!-- Fonts & Icons -->
@@ -11,6 +11,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;1,600&display=swap" rel="stylesheet">
   
   <style>
+    /* --- 1. System Variables --- */
     :root {
       --primary: #0f172a;       
       --primary-light: #334155; 
@@ -21,12 +22,11 @@
       --text-sub: #64748b;
       --border: #e2e8f0;
       
-      /* Colors */
+      /* Functional Colors */
       --color-transport: #0ea5e9;
       --color-food: #f97316;
       --color-spot: #10b981;
       --color-stay: #8b5cf6;
-      --color-cash: #16a34a; /* New for Cash */
       
       /* Shadows */
       --shadow-sm: 0 1px 2px 0 rgba(0,0,0,0.05);
@@ -34,17 +34,18 @@
       --shadow-float: 0 20px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1);
     }
 
+    /* --- 2. Reset & Global --- */
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     body { 
         font-family: 'Inter', 'Noto Sans TC', sans-serif; 
         background: var(--bg-body); margin: 0; 
         color: var(--text-main); line-height: 1.6; 
-        padding-bottom: 90px;
         overflow-x: hidden;
         transition: padding-left 0.3s ease;
+        min-height: 100vh;
     }
 
-    /* --- Buttons --- */
+    /* --- 3. Utility Components --- */
     .btn { 
         padding: 8px 16px; border-radius: 8px; border: 1px solid var(--border); 
         background: white; cursor: pointer; font-size: 13px; font-weight: 600; 
@@ -54,22 +55,19 @@
     .btn:active { transform: scale(0.98); }
     .btn-primary { background: var(--primary); color: white; border: none; }
     .btn-danger { color: #ef4444; background: #fef2f2; border-color: #fee2e2; }
-    .btn-sos { background: #dc2626; color: white; border: none; box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3); }
-    .btn-sos:hover { background: #b91c1c; }
-    
     .icon-btn { background: none; border: none; cursor: pointer; padding: 8px; border-radius: 50%; color: var(--text-sub); }
     .icon-btn:hover { background: rgba(0,0,0,0.05); color: var(--text-main); }
 
-    /* --- Portal --- */
+    /* --- 4. Portal (Entry Screen) --- */
     #portal { 
         position: fixed; inset: 0; background: #0f172a; 
-        z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; 
-        color: white; transition: opacity 0.4s; 
+        z-index: 10000; display: flex; flex-direction: column; align-items: center; justify-content: center; 
+        color: white; transition: opacity 0.4s, visibility 0.4s;
         background-image: url('https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&w=1920&q=80');
         background-size: cover; background-position: center;
     }
     #portal::before { content: ''; position: absolute; inset: 0; background: rgba(15, 23, 42, 0.85); z-index: -1; }
-    #portal.hidden { opacity: 0; pointer-events: none; }
+    #portal.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
     
     .portal-container { text-align: center; max-width: 800px; padding: 20px; position: relative; z-index: 1; }
     .portal-year { font-family: 'Playfair Display', serif; font-size: 20px; letter-spacing: 4px; color: var(--accent); margin-bottom: 10px; }
@@ -88,12 +86,14 @@
     .portal-card-title { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
     .portal-card-desc { font-size: 12px; opacity: 0.6; }
 
-    /* --- Mobile View --- */
-    #mobile-view { display: none; max-width: 600px; margin: 0 auto; background: #f4f5f7; min-height: 100vh; }
-    #mobile-view.active { display: block; animation: fadeIn 0.4s; }
-
+    /* --- 5. View Containers (Isolation) --- */
+    .view-container { display: none; width: 100%; min-height: 100vh; }
+    .view-container.active { display: block; animation: fadeIn 0.5s; }
+    
+    /* --- 6. Mobile View Styles --- */
+    #mobile-view { background: #f4f5f7; padding-bottom: 100px; }
     .m-header {
-        background: white; color: var(--text-main); padding: 24px 20px 20px;
+        background: white; color: var(--text-main); padding: 20px 20px 10px;
         position: sticky; top: 0; z-index: 80;
         border-bottom: 1px solid var(--border);
     }
@@ -101,15 +101,16 @@
     .m-trip-title { font-size: 24px; font-weight: 800; letter-spacing: -0.5px; }
     .m-trip-subtitle { font-size: 11px; color: var(--text-sub); font-weight: 700; letter-spacing: 1px; text-transform: uppercase; }
 
+    /* Day Selector Scroll */
     .m-day-selector-container {
         overflow-x: auto; white-space: nowrap; scrollbar-width: none; 
-        padding-bottom: 4px; margin: 0 -20px; padding: 0 20px;
+        padding-bottom: 10px; margin: 0 -20px; padding-left: 20px; padding-right: 20px;
     }
     .m-day-btn {
         display: inline-flex; flex-direction: column; align-items: center; justify-content: center;
-        width: 50px; height: 64px; background: #f1f5f9; border-radius: 12px;
+        width: 54px; height: 64px; background: #f1f5f9; border-radius: 12px;
         margin-right: 8px; cursor: pointer; transition: all 0.2s;
-        color: var(--text-sub); border: 1px solid transparent;
+        color: var(--text-sub); border: 1px solid transparent; flex-shrink: 0;
     }
     .m-day-btn.active {
         background: var(--primary); color: white; transform: scale(1.05);
@@ -118,9 +119,9 @@
     .m-day-num { font-size: 18px; font-weight: 700; line-height: 1; }
     .m-day-txt { font-size: 10px; font-weight: 600; margin-top: 2px; }
 
-    .m-content { padding: 20px; }
+    .m-content { padding: 20px; max-width: 600px; margin: 0 auto; }
     
-    /* Timeline Mobile */
+    /* Mobile Timeline */
     .m-timeline { position: relative; padding-left: 28px; }
     .m-timeline-line { 
         position: absolute; left: 11px; top: 12px; bottom: 0; 
@@ -142,7 +143,7 @@
     .m-event-card:active { transform: scale(0.98); }
     
     .m-card-img-header {
-        height: 120px; width: 100%; background-size: cover; background-position: center;
+        height: 140px; width: 100%; background-size: cover; background-position: center;
         position: relative;
     }
     .m-card-title-overlay {
@@ -163,39 +164,71 @@
         font-size: 10px; color: var(--color-spot); background: #ecfdf5; border: 1px solid #bbf7d0;
         padding: 2px 6px; border-radius: 99px; display: inline-flex; align-items: center; gap: 2px; margin-left: 8px;
     }
-    
-    /* Cash Only Badge */
     .cash-badge {
         font-size: 10px; background: #dcfce7; color: #15803d; border: 1px solid #86efac;
-        padding: 1px 6px; border-radius: 4px; display: inline-flex; align-items: center; gap: 2px;
+        padding: 1px 6px; border-radius: 4px; display: inline-flex; align-items: center; gap: 2px; margin-top: 4px;
     }
 
-    /* --- Desktop View --- */
-    #desktop-view { display: none; max-width: 1800px; margin: 0 auto; padding: 24px; }
-    #desktop-view.active { display: block; animation: fadeIn 0.5s; }
-    .d-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background: white; padding: 20px; border-radius: 16px; border: 1px solid var(--border); }
+    /* --- 7. Desktop View Styles --- */
+    #desktop-view { max-width: 1800px; margin: 0 auto; padding: 24px; }
+    .d-header { 
+        display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; 
+        background: white; padding: 20px; border-radius: 16px; border: 1px solid var(--border); box-shadow: var(--shadow-sm);
+    }
+    
+    /* Visual Timeline Table */
+    .main-table-wrapper { overflow-x: auto; background: white; border-radius: 20px; border: 1px solid var(--border); box-shadow: var(--shadow-card); }
+    .desktop-table { width: 100%; min-width: 1600px; border-collapse: separate; border-spacing: 0; }
+    .desktop-table th { position: sticky; top: 0; background: #f8fafc; z-index: 20; padding: 16px; border-bottom: 1px solid var(--border); text-align: left; color: var(--text-sub); font-size: 13px; }
+    .desktop-table td { padding: 0; border-right: 1px dashed var(--border); vertical-align: top; width: 11.11%; min-width: 200px; position: relative; transition: background 0.2s; }
+    .desktop-table td:hover { background: #fcfcfc; }
+    
+    .timeline-container {
+        position: relative; height: 1200px; 
+        background-image: linear-gradient(to bottom, var(--border) 1px, transparent 1px);
+        background-size: 100% 60px; background-position: 0 20px;
+    }
+    .time-marker { position: absolute; left: 6px; font-size: 10px; color: #cbd5e1; width: 30px; pointer-events: none; font-family: 'JetBrains Mono'; }
+    
+    .event-block {
+        position: absolute; left: 40px; right: 8px; border-radius: 8px; padding: 0;
+        font-size: 12px; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.05); transition: all 0.2s;
+        display: flex; flex-direction: column; overflow: hidden; background: white; border: 1px solid var(--border);
+    }
+    .event-block:hover { transform: scale(1.05); z-index: 50; box-shadow: 0 12px 30px rgba(0,0,0,0.15); }
+    .eb-bg { height: 100%; background-size: cover; background-position: center; position: relative; }
+    .eb-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.8), rgba(0,0,0,0.1)); padding: 8px; display: flex; flex-direction: column; justify-content: flex-end; }
+    .eb-title { color: white; font-weight: 700; text-shadow: 0 1px 3px rgba(0,0,0,0.5); line-height: 1.2; }
+    .eb-time { color: rgba(255,255,255,0.9); font-size: 10px; font-family: 'JetBrains Mono'; margin-bottom: 2px; }
+    .eb-solid { padding: 6px 8px; height: 100%; display: flex; flex-direction: column; justify-content: center; }
+    
+    .type-move { border-left: 4px solid var(--color-transport); }
+    .type-food { border-left: 4px solid var(--color-food); }
+    .type-spot { border-left: 4px solid var(--color-spot); }
+    .type-stay { border-left: 4px solid var(--color-stay); }
 
-    /* --- Database View --- */
-    #db-view { display: none; max-width: 1200px; margin: 0 auto; padding: 24px; }
-    #db-view.active { display: block; animation: fadeIn 0.5s; }
+    /* --- 8. Database View --- */
+    #db-view { max-width: 1200px; margin: 0 auto; padding: 24px; }
+    .db-table-container { background: white; border-radius: 16px; overflow: hidden; border: 1px solid var(--border); box-shadow: var(--shadow-sm); }
     .db-table { width: 100%; border-collapse: collapse; font-size: 13px; background: white; }
     .db-table th, .db-table td { padding: 12px 16px; border-bottom: 1px solid var(--border); text-align: left; }
     .db-table tr:hover { background: #f8fafc; cursor: pointer; }
 
-    /* --- Bottom Nav --- */
+    /* --- 9. Bottom Nav (Mobile Only) --- */
     .bottom-nav {
         position: fixed; bottom: 0; left: 0; width: 100%;
         background: rgba(255,255,255,0.95); backdrop-filter: blur(20px);
         border-top: 1px solid rgba(0,0,0,0.05);
-        display: flex; justify-content: space-around; padding: 10px 0;
+        display: none; justify-content: space-around; padding: 10px 0;
         z-index: 1000; padding-bottom: calc(10px + env(safe-area-inset-bottom));
         box-shadow: 0 -4px 20px rgba(0,0,0,0.05);
     }
     .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; background: none; border: none; color: #94a3b8; font-size: 10px; font-weight: 600; cursor: pointer; width: 20%; }
     .nav-item.active { color: var(--primary); }
     .nav-item span { font-size: 24px; }
+    @media (max-width: 768px) { .bottom-nav { display: flex; } }
 
-    /* --- Drawers --- */
+    /* --- 10. Drawer & Modals --- */
     .drawer-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.4); backdrop-filter: blur(2px); z-index: 2000; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
     .drawer-backdrop.active { opacity: 1; pointer-events: auto; }
     
@@ -215,110 +248,56 @@
     .drawer-header { padding: 24px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: flex-start; background: white; }
     .drawer-body { flex: 1; overflow-y: auto; padding: 24px; background: #fcfcfc; }
     .drawer-footer { padding: 16px 24px; border-top: 1px solid var(--border); background: white; display: flex; justify-content: space-between; align-items: center; }
-
-    /* Drawer Elements */
-    .link-group { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
-    .nearby-tag { 
-        display: inline-block; background: #f0fdf4; color: #15803d; 
-        border: 1px solid #bbf7d0; padding: 4px 8px; border-radius: 6px; 
-        font-size: 12px; margin-right: 6px; margin-bottom: 6px; 
-    }
     
-    .todo-item {
-        display: flex; align-items: center; gap: 10px; padding: 10px;
-        background: white; border: 1px solid var(--border); border-radius: 8px;
-        margin-bottom: 8px; cursor: pointer; transition: all 0.2s;
-    }
-    .todo-item:hover { border-color: var(--accent); background: #f8fafc; }
-    .todo-item.done .todo-text { text-decoration: line-through; color: var(--text-sub); }
-    .todo-checkbox { width: 18px; height: 18px; accent-color: var(--color-spot); cursor: pointer; }
-
-    /* Desktop Timeline */
-    .event-block {
-        position: absolute; left: 40px; right: 8px; border-radius: 8px; padding: 0;
-        font-size: 12px; cursor: pointer;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.05); transition: all 0.2s;
-        display: flex; flex-direction: column; overflow: hidden;
-        background: white; border: 1px solid var(--border);
-    }
-    .event-block:hover { transform: scale(1.05); z-index: 50; box-shadow: 0 12px 30px rgba(0,0,0,0.15); }
-    .eb-bg { height: 100%; background-size: cover; background-position: center; position: relative; }
-    .eb-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.8), rgba(0,0,0,0.1)); padding: 8px; display: flex; flex-direction: column; justify-content: flex-end; }
-    .eb-title { color: white; font-weight: 700; text-shadow: 0 1px 3px rgba(0,0,0,0.5); line-height: 1.2; }
-    .eb-time { color: rgba(255,255,255,0.9); font-size: 10px; font-family: 'JetBrains Mono'; margin-bottom: 2px; }
-    .eb-solid { padding: 6px 8px; height: 100%; display: flex; flex-direction: column; justify-content: center; }
-    
-    .type-move { border-left: 4px solid var(--color-transport); }
-    .type-food { border-left: 4px solid var(--color-food); }
-    .type-spot { border-left: 4px solid var(--color-spot); }
-    .type-stay { border-left: 4px solid var(--color-stay); }
-
     /* Editor Modal */
-    #editor-overlay, #modal-container { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 2100; justify-content: center; align-items: center; backdrop-filter: blur(4px); }
+    #editor-overlay, #modal-container { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 11000; justify-content: center; align-items: center; backdrop-filter: blur(4px); }
     .editor-modal { background: white; width: 90%; max-width: 450px; border-radius: 24px; padding: 24px; max-height: 90vh; overflow-y: auto; box-shadow: var(--shadow-float); animation: fadeIn 0.2s; }
-    .form-input { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; margin-bottom: 12px; }
-    
+    .form-input { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; margin-bottom: 12px; font-family: inherit; }
+
     .checkbox-wrapper { display: flex; align-items: center; gap: 8px; margin-top: 6px; cursor: pointer; user-select: none; }
-    .checkbox-input { width: 18px; height: 18px; accent-color: var(--color-spot); cursor: pointer; }
+    .checkbox-input { width: 18px; height: 18px; accent-color: var(--accent); cursor: pointer; }
 
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-    
-    /* Print Optimization */
-    @media print {
-        body { padding: 0; background: white; }
-        .header, .bottom-nav, .btn, .icon-btn, #portal { display: none !important; }
-        #desktop-view { display: block !important; padding: 0; }
-        .main-table-wrapper { overflow: visible; border: none; box-shadow: none; }
-        .timeline-container { background: none; height: auto !important; }
-        .event-block { position: relative; left: 0; right: 0; margin-bottom: 10px; top: auto !important; height: auto !important; page-break-inside: avoid; border: 1px solid #ccc; }
-        .eb-bg { height: 60px; } /* Small height for print */
-    }
   </style>
 </head>
 <body>
 
-  <!-- Portal -->
+  <!-- 0. Portal -->
   <div id="portal">
     <div class="portal-container">
         <div class="portal-year">EST. 2025</div>
         <div class="portal-title">KYUSHU<br>ODYSSEY</div>
-        <div class="portal-subtitle">九州旅行指揮中心 V24 (大師級完全體)</div>
+        <div class="portal-subtitle">九州旅行指揮中心 V26 (最終修復版)</div>
         
         <div class="portal-cards">
-            <div class="portal-card" onclick="switchTab('mobile')">
+            <div class="portal-card" onclick="enterApp('mobile')">
                 <div class="portal-icon">📱</div>
                 <div class="portal-card-title">隨行模式</div>
-                <div class="portal-card-desc">適合手機瀏覽</div>
+                <div class="portal-card-desc">手機瀏覽最佳化</div>
             </div>
-            <div class="portal-card" onclick="switchTab('desktop')">
+            <div class="portal-card" onclick="enterApp('desktop')">
                 <div class="portal-icon">🗺️</div>
                 <div class="portal-card-title">戰略視圖</div>
                 <div class="portal-card-desc">完整時間軸規劃</div>
             </div>
-            <div class="portal-card" onclick="switchTab('db')">
+            <div class="portal-card" onclick="enterApp('db')">
                 <div class="portal-icon">🗄️</div>
                 <div class="portal-card-title">資料庫</div>
                 <div class="portal-card-desc">清單與搜尋</div>
-            </div>
-            <!-- New Global Buttons -->
-            <div class="portal-card" onclick="openGlobalChecklist()" style="border-color:#10b981;">
-                <div class="portal-icon">🧳</div>
-                <div class="portal-card-title">行前準備</div>
-                <div class="portal-card-desc">總檢核表</div>
             </div>
         </div>
     </div>
   </div>
 
-  <!-- Mobile View -->
-  <div id="mobile-view">
+  <!-- 1. Mobile View -->
+  <div id="mobile-view" class="view-container">
     <div class="m-header">
         <div class="m-header-top">
             <div>
                 <div class="m-trip-subtitle">DECEMBER 10-18</div>
                 <div class="m-trip-title">九州縱斷之旅</div>
             </div>
-            <button class="icon-btn" onclick="enterApp()"><span class="material-symbols-rounded">home</span></button>
+            <button class="icon-btn" onclick="showPortal()"><span class="material-symbols-rounded">home</span></button>
         </div>
         <div class="m-day-selector-container" id="m-day-selector"></div>
     </div>
@@ -332,19 +311,17 @@
             </div>
         </div>
         <div class="m-timeline" id="m-timeline-list"></div>
-        <div style="height: 60px;"></div>
     </div>
   </div>
 
-  <!-- Desktop View -->
-  <div id="desktop-view">
-      <div class="d-header" style="background:white; padding:20px; border-radius:16px; border:1px solid var(--border); display:flex; justify-content:space-between; margin-bottom:20px;">
+  <!-- 2. Desktop View -->
+  <div id="desktop-view" class="view-container">
+      <div class="d-header">
           <div>
               <div style="font-size:12px; color:var(--text-sub); font-weight:700;">COMMAND CENTER</div>
               <h1 style="color:var(--primary);">行程戰略視圖</h1>
           </div>
           <div style="display:flex; gap:24px; align-items:center;">
-               <!-- New Stats -->
                <div style="text-align:right;">
                    <div style="font-size:11px; color:var(--text-sub);">預估總預算</div>
                    <div id="dash-total" style="font-size:18px; font-weight:800;">¥0</div>
@@ -359,23 +336,24 @@
                    <button class="btn btn-sos" onclick="openEmergency()"><span class="material-symbols-rounded">sos</span> 緊急</button>
                    <button class="btn" onclick="exportData()">備份</button>
                    <button class="btn" onclick="importData()">還原</button>
+                   <button class="btn" onclick="showPortal()">首頁</button>
                </div>
           </div>
           <input type="file" id="import-file" style="display:none" onchange="processImport(this)">
       </div>
       <div style="overflow:auto; border:1px solid var(--border); border-radius:16px; height:80vh;">
-          <table id="desktop-table" style="width:100%; min-width:1600px; border-collapse:separate; border-spacing:0;">
+          <table class="desktop-table">
               <thead><tr id="d-header-row" style="position:sticky; top:0; background:#f8fafc; z-index:10;"></tr></thead>
               <tbody id="d-body-row"></tbody>
           </table>
       </div>
   </div>
 
-  <!-- Database View -->
-  <div id="db-view">
+  <!-- 3. Database View -->
+  <div id="db-view" class="view-container">
       <div class="d-header" style="background:white; padding:20px; border-radius:16px; border:1px solid var(--border); display:flex; justify-content:space-between; margin-bottom:20px;">
           <h1>🗄️ 行程資料庫</h1>
-          <button class="btn" onclick="enterApp()">返回首頁</button>
+          <button class="btn" onclick="showPortal()">返回首頁</button>
       </div>
       <div class="db-table-container" style="background:white; border-radius:12px; overflow:hidden; border:1px solid var(--border);">
           <table class="db-table">
@@ -389,7 +367,7 @@
   <div class="drawer-backdrop" id="drawer-backdrop" onclick="closeDrawer()"></div>
   <div class="detail-drawer" id="detail-drawer">
       <div class="drawer-header">
-          <div>
+          <div style="flex-grow:1">
              <div class="text-sm font-weight-bold text-sub" id="d-drawer-type">TYPE</div>
              <div style="font-size:24px; font-weight:800; line-height:1.2;" id="d-drawer-title">Title</div>
           </div>
@@ -413,16 +391,32 @@
                   <div class="font-mono font-weight-bold" id="d-drawer-cost">¥0</div>
               </div>
           </div>
+          
+          <div id="d-drawer-onsen-container" style="display:none; margin-bottom:16px;">
+              <div style="background:#f3e8ff; border:1px solid #d8b4fe; color:#6b21a8; padding:12px; border-radius:12px;">
+                  <div style="font-weight:700; font-size:13px; margin-bottom:4px; display:flex; align-items:center; gap:4px;"><span class="material-symbols-rounded" style="font-size:16px;">hot_tub</span> 溫泉情報</div>
+                  <div id="d-drawer-onsen" style="font-size:13px;"></div>
+              </div>
+          </div>
+
           <div id="d-drawer-planb" style="display:none; background:#f1f5f9; padding:12px; border-radius:12px; margin-bottom:20px; border:1px dashed var(--text-sub);">
               <div style="font-weight:700; font-size:13px; display:flex; align-items:center; gap:6px;">
                   <span class="material-symbols-rounded">rainy</span> 備案行程
               </div>
               <div id="d-drawer-planb-text" style="font-size:13px; margin-top:4px; color:var(--text-sub);"></div>
           </div>
+
           <div style="margin-bottom:20px;">
               <div class="text-xs font-weight-bold text-sub" style="margin-bottom:6px;">詳細攻略 & 備註</div>
               <div id="d-drawer-desc" style="font-size:14px; line-height:1.6;"></div>
           </div>
+          
+          <div style="margin-bottom:24px;">
+              <div class="text-xs font-weight-bold text-sub" style="margin-bottom:8px;">待辦事項</div>
+              <div id="d-todo-list" style="border:1px solid var(--border); border-radius:8px; overflow:hidden;"></div>
+              <button class="btn" style="width:100%; font-size:12px; margin-top:8px; border-style:dashed;" onclick="openEditor(null, true)">+ 編輯待辦</button>
+          </div>
+
           <div style="background:#f0f9ff; padding:16px; border-radius:12px; border:1px solid #bae6fd; margin-bottom:20px;">
               <div style="font-size:11px; font-weight:700; color:#0284c7; margin-bottom:6px;">👨‍🏫 老師傅建議</div>
               <div id="d-drawer-advice" style="font-size:13px; color:#0c4a6e;"></div>
@@ -438,13 +432,14 @@
   <div class="bottom-nav">
       <button class="nav-item active" onclick="switchTab('mobile')"><span class="material-symbols-rounded">explore</span>行程</button>
       <button class="nav-item" onclick="switchTab('desktop')"><span class="material-symbols-rounded">map</span>戰略圖</button>
+      <button class="nav-item" onclick="switchTab('db')"><span class="material-symbols-rounded">table_rows</span>資料庫</button>
       <button class="nav-item" onclick="openGlobalChecklist()"><span class="material-symbols-rounded">checklist</span>準備</button>
       <button class="nav-item" onclick="openEmergency()"><span class="material-symbols-rounded">sos</span>緊急</button>
   </div>
 
   <!-- Editor Modal -->
-  <div id="editor-overlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:2100; justify-content:center; align-items:center; backdrop-filter:blur(4px);">
-      <div class="editor-modal" style="background:white; width:90%; max-width:450px; border-radius:24px; padding:24px; max-height:90vh; overflow-y:auto; box-shadow: var(--shadow-float);">
+  <div id="editor-overlay">
+      <div class="editor-modal">
           <h3 style="margin-top:0;">編輯行程</h3>
           <input type="hidden" id="e-day-id"><input type="hidden" id="e-id">
           
@@ -463,10 +458,7 @@
                       <option value="move">交通</option><option value="food">美食</option><option value="spot">景點</option><option value="stay">住宿</option>
                   </select>
               </div>
-              <div style="flex:1">
-                  <label class="text-xs font-weight-bold text-sub">預算</label>
-                  <input type="number" id="e-cost" class="form-input" placeholder="0">
-              </div>
+              <div style="flex:1"><label class="text-xs font-weight-bold text-sub">預算</label><input type="number" id="e-cost" class="form-input" placeholder="0"></div>
           </div>
           
           <div style="margin-bottom:12px; display:flex; gap:16px;">
@@ -494,9 +486,9 @@
       </div>
   </div>
 
-  <!-- Modal Container for Global & Emergency -->
-  <div id="modal-container" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:3000; justify-content:center; align-items:center; backdrop-filter:blur(4px);">
-      <div class="editor-modal" style="background:white; width:90%; max-width:500px; border-radius:24px; padding:24px; max-height:90vh; overflow-y:auto;">
+  <!-- Modal Container -->
+  <div id="modal-container">
+      <div class="editor-modal" style="width:90%; max-width:500px;">
           <div id="modal-content"></div>
           <div style="margin-top:20px; text-align:right;">
               <button class="btn" onclick="document.getElementById('modal-container').style.display='none'">關閉</button>
@@ -505,23 +497,9 @@
   </div>
 
   <script>
-    const STORAGE_KEY = 'kyushu_v24_master';
-    const daysMeta = [
-      {id:1, date:'12/10 (三)', city:'別府'}, {id:2, date:'12/11 (四)', city:'大分'}, 
-      {id:3, date:'12/12 (五)', city:'由布院'}, {id:4, date:'12/13 (六)', city:'浮羽'}, 
-      {id:5, date:'12/14 (日)', city:'原鶴'}, {id:6, date:'12/15 (一)', city:'博多'},
-      {id:7, date:'12/16 (二)', city:'北九州'}, {id:8, date:'12/17 (三)', city:'博多'}, 
-      {id:9, date:'12/18 (四)', city:'返程'}
-    ];
-
-    // Reference Data (Same as before + new)
-    const spotDB = {
-      "焼肉 一力": { open:"17:00-24:00 (週四休)", tips:"煙味重，避開淺色衣物，建議先訂位", url:"https://tabelog.com/oita/A4402/A440202/44000462/" },
-      "とよ常": { open:"11:00-21:00 (週二/三休)", tips:"特上天丼必點，建議11:00前排隊", url:"http://www.toyotsune.com/" },
-      "友永パン屋": { open:"08:30-17:30 (週日休)", tips:"只收現金", url:"https://tabelog.com/oita/A4402/A440202/44000059/" },
-      "IT750": { type:"move", desc:"TPE 12:00 -> OIT 15:00" }
-    };
-
+    const STORAGE_KEY = 'kyushu_v26_fixed';
+    
+    // Images
     const IMGS = {
         beppu: "https://images.unsplash.com/photo-1576485290814-1c72aa4bbb8e?auto=format&fit=crop&w=600&q=80",
         yakiniku: "https://images.unsplash.com/photo-1594041680534-e8c8cdebd659?auto=format&fit=crop&w=600&q=80",
@@ -531,6 +509,14 @@
         hotel: "https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&w=600&q=80",
         train: "https://images.unsplash.com/photo-1474487548417-781a5a8cae56?auto=format&fit=crop&w=600&q=80"
     };
+
+    const daysMeta = [
+      {id:1, date:'12/10 (三)', city:'別府'}, {id:2, date:'12/11 (四)', city:'大分'}, 
+      {id:3, date:'12/12 (五)', city:'由布院'}, {id:4, date:'12/13 (六)', city:'浮羽'}, 
+      {id:5, date:'12/14 (日)', city:'原鶴'}, {id:6, date:'12/15 (一)', city:'博多'},
+      {id:7, date:'12/16 (二)', city:'北九州'}, {id:8, date:'12/17 (三)', city:'博多'}, 
+      {id:9, date:'12/18 (四)', city:'返程'}
+    ];
 
     const defaultData = {
         checklist: [
@@ -543,17 +529,26 @@
         ],
         events: {
             d1: [
-                {id:'e1', start:'10:00', end:'12:00', title:'✈️ 桃機報到', type:'move', cost:0, paid:true, desc:'T1 虎航櫃檯', todos:[{text:'下載登機證',done:false}]},
-                {id:'e3', start:'16:00', end:'17:00', title:'🚌 空港巴士', type:'move', cost:1600, paid:false, cashOnly:true, desc:'往別府北浜', advice:'坐左邊看海！'},
-                {id:'e4', start:'17:30', end:'19:30', title:'🥩 燒肉一力', type:'food', cost:5000, paid:false, cashOnly:true, desc:'在地老店，煙味重', img:IMGS.yakiniku},
-                {id:'e5', start:'21:00', end:'23:59', title:'🏨 西鉄別府', type:'stay', cost:0, paid:true, desc:'泡湯休息', img:IMGS.hotel}
+                {id:'e1', start:'10:00', end:'12:00', title:'✈️ 桃機報到', type:'move', cost:0, paid:true, desc:'T1 虎航櫃檯', todos:[{text:'線上報到',done:false}]},
+                {id:'e2', start:'12:00', end:'15:00', title:'IT750 飛行', type:'move', cost:0, paid:true, desc:'PNR: B8453T | Tigerlight', advice:'訂單編號 B8453T。大分機場很小，下飛機後動線單純。'},
+                {id:'e3', start:'16:00', end:'17:00', title:'🚌 空港巴士', type:'move', cost:1600, paid:false, cashOnly:true, desc:'往別府北浜', advice:'坐左邊看海！', img:IMGS.train},
+                {id:'e4', start:'17:30', end:'19:30', title:'🥩 燒肉一力', type:'food', cost:5000, paid:false, cashOnly:true, desc:'在地老店，煙味重', img:IMGS.yakiniku, advice:'煙燻地獄！勿穿毛衣。'},
+                {id:'e5', start:'21:00', end:'23:59', title:'🏨 西鉄別府', type:'stay', cost:0, paid:true, desc:'泡湯休息', img:IMGS.hotel, onsen:'大浴場 15:00-01:00 / 05:00-09:30。'}
             ],
             d2: [
-                {id:'e1', start:'09:00', end:'11:30', title:'🚠 鶴見岳纜車', type:'spot', cost:1600, paid:false, cashOnly:false, desc:'山上零度', img:IMGS.ropeway},
+                {id:'e1', start:'09:00', end:'11:30', title:'🚠 鶴見岳纜車', type:'spot', cost:1600, paid:false, cashOnly:false, desc:'山上零度', img:IMGS.ropeway, advice:'★必看官網 Live Camera！'},
                 {id:'e2', start:'11:30', end:'13:00', title:'🍤 とよ常 天丼', type:'food', cost:1200, paid:false, cashOnly:true, desc:'11:00排隊', img:IMGS.tempura},
-                {id:'e3', start:'15:00', end:'17:00', title:'🏨 JR Blossom', type:'stay', cost:0, paid:true, desc:'City Spa', img:IMGS.beppu}
-            ]
-            // (Other days omitted for brevity but structure is same)
+                {id:'e3', start:'15:00', end:'17:00', title:'🏨 JR Blossom', type:'stay', cost:0, paid:true, desc:'City Spa', img:IMGS.beppu, onsen:'City Spa 14:00-24:00 / 06:00-09:30。頂樓露天。'}
+            ],
+            d3: [
+                {id:'e1', start:'10:00', end:'11:00', title:'🚂 移動往由布院', type:'move', cost:1100, desc:'JR 久大本線', img:IMGS.train},
+                {id:'e2', start:'11:00', end:'14:00', title:'📷 湯之坪街道', type:'spot', cost:2000, desc:'邊吃邊逛', img:IMGS.yufuin},
+                {id:'e3', start:'16:00', end:'18:00', title:'🏨 カントリーイン麓舎', type:'stay', cost:0, desc:'Check-in，晚餐豐盛', img:IMGS.hotel}
+            ],
+            d4: [{id:'e2', start:'12:30', end:'16:00', title:'浮羽白壁散策', type:'spot', cost:500, desc:'租單車'},{id:'e3', start:'17:00', end:'22:00', title:'Hostel Farolito', type:'stay', cost:0, desc:'入住'}],
+            d5: [{id:'e1', start:'14:00', end:'17:00', title:'泰泉閣 Check-in', type:'stay', cost:0, desc:'叢林風呂', onsen:'叢林風呂(男女互換)、雙重美肌湯。'},{id:'e2', start:'17:30', end:'19:00', title:'晚餐自理 (重要)', type:'food', cost:2000, desc:'建議在杷木或道之驛買好便當'}],
+            d6: [{id:'e1', start:'10:00', end:'11:30', title:'移動往博多', type:'move', cost:1500, desc:'巴士'},{id:'e3', start:'20:00', end:'22:00', title:'中洲屋台', type:'spot', cost:2000, desc:'體驗'}],
+            d9: [{id:'e1', start:'08:30', end:'09:00', title:'前往機場', type:'move', cost:260, desc:'地鐵'},{id:'e3', start:'10:55', end:'12:40', title:'IT241 返程', type:'move', cost:0, desc:'PNR: B8453T'}]
         },
         expert: { d1: "巴士人多要排隊，動作快。", d2: "City Spa 風大，頭包毛巾。" }
     };
@@ -567,82 +562,96 @@
     function init() {
         const saved = localStorage.getItem(STORAGE_KEY);
         appData = saved ? JSON.parse(saved) : JSON.parse(JSON.stringify(defaultData));
-        if(!appData.checklist) appData.checklist = defaultData.checklist;
         daysMeta.forEach(d => { if(!appData.events['d'+d.id]) appData.events['d'+d.id] = []; });
-        renderAll();
+        enterApp('mobile'); // Default
     }
 
-    function renderAll() {
-        renderMobile();
-        renderDesktopTable();
-        renderDB();
+    // --- Navigation & Entry ---
+    function enterApp(mode) {
+        document.getElementById('portal').classList.add('hidden');
+        switchTab(mode);
+    }
+    
+    function switchTab(tab) {
+        ['desktop','mobile','db'].forEach(t => document.getElementById(t+'-view').classList.remove('active'));
+        document.getElementById(tab+'-view').classList.add('active');
+        
+        document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+        if(tab==='mobile') { document.querySelectorAll('.nav-item')[0].classList.add('active'); renderMobile(); }
+        if(tab==='desktop') { document.querySelectorAll('.nav-item')[1].classList.add('active'); renderDesktopTable(); }
+        if(tab==='db') { document.querySelectorAll('.nav-item')[2].classList.add('active'); renderDB(); }
         updateDashboard();
     }
 
-    // --- 1. Global Features (New) ---
+    function showPortal() {
+        document.getElementById('portal').classList.remove('hidden');
+    }
+
+    // --- Global Checklist ---
     function openGlobalChecklist() {
         const modal = document.getElementById('modal-container');
         const content = document.getElementById('modal-content');
         modal.style.display = 'flex';
         
-        let html = `<h3>🧳 行前準備總清單</h3><div class="drawer-todo-list">`;
+        let html = `<h3>🧳 行前準備總清單</h3><div class="drawer-todo-list" style="border:1px solid #eee; border-radius:12px;">`;
         appData.checklist.forEach((item, i) => {
             html += `<div class="todo-item ${item.done?'done':''}" onclick="toggleGlobalCheck(${i})">
                 <input type="checkbox" class="todo-checkbox" ${item.done?'checked':''}>
-                <div class="todo-text">${item.text}</div>
+                <div class="drawer-todo-text ${item.done?'done':''}">${item.text}</div>
             </div>`;
         });
         html += `</div><button class="btn" style="width:100%; border-style:dashed;" onclick="addGlobalCheck()">+ 新增項目</button>`;
         content.innerHTML = html;
     }
-
-    function toggleGlobalCheck(i) {
-        appData.checklist[i].done = !appData.checklist[i].done;
-        persist();
-        openGlobalChecklist();
-    }
-
-    function addGlobalCheck() {
-        const text = prompt("輸入待辦事項：");
-        if(text) {
-            appData.checklist.push({text:text, done:false});
-            persist();
-            openGlobalChecklist();
-        }
-    }
+    function toggleGlobalCheck(i) { appData.checklist[i].done = !appData.checklist[i].done; persist(); openGlobalChecklist(); }
+    function addGlobalCheck() { const t = prompt("輸入待辦事項："); if(t){ appData.checklist.push({text:t, done:false}); persist(); openGlobalChecklist(); } }
 
     function openEmergency() {
         const modal = document.getElementById('modal-container');
         const content = document.getElementById('modal-content');
         modal.style.display = 'flex';
-        content.innerHTML = `
-            <h3 style="color:#dc2626;">🆘 緊急與憑證中心</h3>
-            <div style="background:#fef2f2; border:1px solid #fee2e2; padding:16px; border-radius:12px; margin-bottom:16px;">
-                <strong>🇯🇵 日本緊急電話</strong><br>
-                報警: 110 | 火警/救護: 119
-            </div>
-            <div class="form-group">
-                <label class="text-xs font-weight-bold text-sub">台北駐福岡辦事處</label>
-                <div style="font-size:16px; font-weight:700;">092-734-2810</div>
-            </div>
-            <div class="form-group">
-                <label class="text-xs font-weight-bold text-sub">航班資訊</label>
-                <div>去: IT750 (TPE-OIT)</div>
-                <div>回: IT241 (FUK-TPE)</div>
-            </div>
-            <div class="form-group">
-                <label class="text-xs font-weight-bold text-sub">保險單號 (點擊編輯)</label>
-                <input class="form-input" value="${appData.insurance || ''}" onchange="appData.insurance=this.value; persist();" placeholder="輸入保單號碼...">
-            </div>
-            <hr style="border:none; border-top:1px dashed #eee; margin:16px 0;">
-            <div style="font-size:12px; color:#666;">💡 建議截圖此畫面或列印紙本隨身攜帶。</div>
-        `;
+        content.innerHTML = `<h3 style="color:#dc2626;">🆘 緊急資訊</h3><div style="background:#fef2f2;padding:15px;border-radius:10px;">報警 110 | 救護 119<br>駐日代表處: 092-734-2810</div>`;
     }
 
-    // --- 2. Core Render Logic (Similar to V22 but enhanced) ---
-    // (Code for renderMobile, renderDesktopTable, renderDB omitted for brevity but identical logic to V22, fully functional in final file)
-    // ... [Insert Render Functions Here] ... 
-    // For full functionality, I will paste the essential updated parts.
+    // --- Renderers ---
+    function renderMobile() {
+        const selector = document.getElementById('m-day-selector');
+        selector.innerHTML = '';
+        daysMeta.forEach(d => {
+            const isActive = d.id === currentMobileDay ? 'active' : '';
+            selector.innerHTML += `<div class="m-day-btn ${isActive}" onclick="setMobileDay(${d.id})"><div class="m-day-num">${d.date.split('/')[1].split(' ')[0]}</div><div class="m-day-txt">${d.w}</div></div>`;
+        });
+        document.getElementById('m-daily-advice').innerHTML = appData.expert['d'+currentMobileDay] || "享受旅程！";
+        
+        const list = document.getElementById('m-timeline-list');
+        list.innerHTML = '<div class="m-timeline-line"></div>';
+        const events = appData.events['d'+currentMobileDay] || [];
+        events.sort((a,b)=>a.start.localeCompare(b.start));
+
+        if(events.length===0) { list.innerHTML += '<div style="padding:20px;text-align:center;color:#999">本日無行程</div>'; }
+
+        events.forEach(ev => {
+            let imgStyle = ev.img ? `background-image:url('${ev.img}'); height:140px;` : 'display:none;';
+            let noteHtml = ev.note ? `<div class="highlight-tag">${ev.note}</div>` : '';
+            let cashTag = ev.cashOnly ? '<span class="cash-badge">僅收現金</span>' : '';
+            let icon = 'circle'; if(ev.type==='move')icon='directions_bus'; if(ev.type==='food')icon='restaurant'; if(ev.type==='spot')icon='photo_camera'; if(ev.type==='stay')icon='hotel';
+            list.innerHTML += `
+            <div class="m-event-item type-${ev.type}">
+                <div class="m-event-icon-box"><span class="material-symbols-rounded" style="font-size:14px">${icon}</span></div>
+                <div class="m-event-card" onclick="openDrawer('${ev.id}', ${currentMobileDay})">
+                    <div class="m-card-img-header" style="${imgStyle}"><div class="m-card-title-overlay">${ev.title}</div></div>
+                    <div class="m-card-body">
+                        <div class="m-info-row"><span>${ev.start} - ${ev.end}</span><span style="color:var(--accent)">¥${ev.cost}</span></div>
+                        ${!ev.img ? `<div class="m-card-title" style="color:black; text-shadow:none;">${ev.title}</div>` : ''}
+                        <div class="m-card-desc">${ev.desc}</div>
+                        ${noteHtml}
+                        <div style="margin-top:6px;">${cashTag}</div>
+                    </div>
+                </div>
+            </div>`;
+        });
+        list.innerHTML += `<button class="btn" style="width:100%;justify-content:center;margin-top:10px;" onclick="openEditor(${currentMobileDay})">+ 新增</button>`;
+    }
 
     function renderDesktopTable() {
         const head = document.getElementById('d-header-row');
@@ -663,8 +672,7 @@
                 let bgStyle = ev.img ? `background-image:url('${ev.img}');` : '';
                 let classMode = ev.img ? 'eb-bg' : 'eb-solid';
                 let contentHtml = ev.img ? `<div class="eb-overlay"><div class="eb-time">${ev.start}</div><div class="eb-title">${ev.title}</div></div>` : `<div class="ev-time">${ev.start}</div><div class="ev-title">${ev.title}</div>`;
-                if(ev.note) contentHtml += `<div class="smart-tag" style="position:absolute;top:-6px;right:-6px;z-index:2;">${ev.note}</div>`;
-                if(ev.cashOnly) contentHtml += `<div style="position:absolute;bottom:2px;left:4px;font-size:9px;background:#dcfce7;color:#15803d;padding:0 4px;border-radius:4px;">現金</div>`;
+                if(ev.note) contentHtml += `<div class="highlight-tag" style="position:absolute;top:-6px;right:-6px;z-index:2;">${ev.note}</div>`;
                 bodyHtml += `<div class="event-block type-${ev.type} ${classMode}" style="top:${startMin}px; height:${height}px; ${bgStyle}" onclick="event.stopPropagation(); openDrawer('${ev.id}', ${d.id})">${contentHtml}</div>`;
             });
             bodyHtml += `</div></td>`;
@@ -672,89 +680,104 @@
         bodyHtml += '</tr>';
         body.innerHTML = bodyHtml;
     }
-    
-    function renderMobile() {
-        const selector = document.getElementById('m-day-selector');
-        selector.innerHTML = '';
-        daysMeta.forEach(d => {
-            const isActive = d.id === currentMobileDay ? 'active' : '';
-            selector.innerHTML += `<div class="m-day-btn ${isActive}" onclick="setMobileDay(${d.id})"><div class="m-day-num">${d.date.split('/')[1].split(' ')[0]}</div><div class="m-day-txt">${d.w}</div></div>`;
-        });
-        document.getElementById('m-daily-advice').innerHTML = appData.expert['d'+currentMobileDay] || "享受旅程！";
-        const list = document.getElementById('m-timeline-list');
-        list.innerHTML = '<div class="m-timeline-line"></div>';
-        const events = appData.events['d'+currentMobileDay] || [];
-        events.sort((a,b)=>a.start.localeCompare(b.start));
-        if(events.length===0) { list.innerHTML += '<div style="padding:20px;text-align:center;color:#999">本日無行程</div>'; return; }
-        events.forEach(ev => {
-            let imgStyle = ev.img ? `background-image:url('${ev.img}'); height:140px;` : 'display:none;';
-            let cashTag = ev.cashOnly ? '<span class="cash-badge">僅收現金</span>' : '';
-            let icon = 'circle'; if(ev.type==='move')icon='directions_bus'; if(ev.type==='food')icon='restaurant'; if(ev.type==='spot')icon='photo_camera'; if(ev.type==='stay')icon='hotel';
-            list.innerHTML += `
-            <div class="m-event-item type-${ev.type}">
-                <div class="m-event-icon-box"><span class="material-symbols-rounded" style="font-size:14px">${icon}</span></div>
-                <div class="m-event-card" onclick="openDrawer('${ev.id}', ${currentMobileDay})">
-                    <div class="m-card-img-header" style="${imgStyle}"><div class="m-card-img-overlay"></div><div class="m-card-title-overlay">${ev.title}</div></div>
-                    <div class="m-card-body">
-                        <div class="m-info-row"><span>${ev.start} - ${ev.end}</span><span style="color:var(--accent)">¥${ev.cost}</span></div>
-                        ${!ev.img ? `<div class="m-card-title" style="color:black; text-shadow:none;">${ev.title}</div>` : ''}
-                        <div class="m-card-desc">${ev.desc}</div>
-                        <div style="margin-top:6px;">${cashTag}</div>
-                    </div>
-                </div>
-            </div>`;
-        });
-        list.innerHTML += `<button class="btn" style="width:100%;justify-content:center;margin-top:10px;" onclick="openEditor(${currentMobileDay})">+ 新增</button>`;
-    }
-    
-    function renderDB() {
+
+    function renderDB(filter = '') {
         const tbody = document.getElementById('db-tbody');
         tbody.innerHTML = '';
         daysMeta.forEach(d => {
             const events = appData.events['d'+d.id] || [];
             events.forEach(ev => {
-                tbody.innerHTML += `<tr onclick="openDrawer('${ev.id}', ${d.id})">
-                    <td>${d.date}</td><td>${ev.start}-${ev.end}</td><td><span class="tag-type type-${ev.type}">${ev.type}</span></td>
-                    <td><strong>${ev.title}</strong></td><td>${ev.cashOnly ? '現金' : ''}</td><td>¥${ev.cost}</td>
-                </tr>`;
+                if(filter && !JSON.stringify(ev).toLowerCase().includes(filter.toLowerCase())) return;
+                tbody.innerHTML += `<tr onclick="openDrawer('${ev.id}', ${d.id})"><td>${d.date}</td><td>${ev.start}</td><td>${ev.type}</td><td><strong>${ev.title}</strong></td><td>${ev.note ? `<span class="highlight-tag">${ev.note}</span>` : ''} ${ev.desc}</td><td>¥${ev.cost}</td></tr>`;
             });
         });
     }
 
-    function updateDashboard() {
-        let total = 0, cashNeeded = 0;
-        Object.values(appData.events).forEach(evs => evs.forEach(e => {
-            total += (e.cost||0);
-            // Calculate Cash Needed: If cashOnly is true AND not paid yet
-            if(e.cashOnly && !e.paid) cashNeeded += (e.cost||0);
-        }));
-        document.getElementById('dash-total').innerText = `¥${total.toLocaleString()}`;
-        document.getElementById('dash-cash').innerText = `¥${cashNeeded.toLocaleString()}`;
+    // --- Drawer Logic ---
+    function openDrawer(evId, dayId) {
+        currentEvId = evId; currentDayId = dayId;
+        const ev = appData.events['d'+dayId].find(e=>e.id===evId);
+        if(!ev) return;
+
+        document.getElementById('d-drawer-title').innerText = ev.title;
+        document.getElementById('d-drawer-type').innerText = ev.type.toUpperCase();
+        document.getElementById('d-drawer-time').innerText = `${ev.start} - ${ev.end}`;
+        document.getElementById('d-drawer-cost').innerText = `¥${ev.cost}`;
+        document.getElementById('d-drawer-desc').innerText = ev.desc || '-';
+        document.getElementById('d-drawer-advice').innerText = ev.advice || '暫無建議';
+        
+        const imgCont = document.getElementById('d-drawer-img-container');
+        if(ev.img) { imgCont.style.display='block'; document.getElementById('d-drawer-img').src=ev.img; } 
+        else { imgCont.style.display='none'; }
+        
+        const onsenCont = document.getElementById('d-drawer-onsen-container');
+        if(ev.onsen) { onsenCont.style.display='block'; document.getElementById('d-drawer-onsen').innerText=ev.onsen; }
+        else { onsenCont.style.display='none'; }
+
+        // Todo List
+        const todoList = document.getElementById('d-todo-list');
+        todoList.innerHTML = '';
+        if(ev.todos && ev.todos.length>0) {
+             ev.todos.forEach((t,i) => {
+                todoList.innerHTML += `<div class="todo-item ${t.done?'done':''}" onclick="toggleTodo('${evId}',${dayId},${i})"><input type="checkbox" class="todo-checkbox" ${t.done?'checked':''}> <span class="drawer-todo-text ${t.done?'done':''}">${t.text}</span></div>`;
+            });
+        } else { todoList.innerHTML = '<div style="padding:10px;color:#999;font-size:12px;">無待辦</div>'; }
+
+        if(!isPinned) document.getElementById('drawer-backdrop').classList.add('active');
+        document.getElementById('detail-drawer').classList.add('active');
     }
-    
+
+    function toggleTodo(evId, dayId, idx) {
+        const ev = appData.events['d'+dayId].find(e=>e.id===evId);
+        if(ev && ev.todos) { ev.todos[idx].done = !ev.todos[idx].done; persist(); openDrawer(evId, dayId); }
+    }
+
+    function closeDrawer() {
+        document.getElementById('drawer-backdrop').classList.remove('active');
+        document.getElementById('detail-drawer').classList.remove('active');
+        if(isPinned) togglePin();
+    }
+
+    function togglePin() {
+        isPinned = !isPinned;
+        document.body.classList.toggle('drawer-pinned', isPinned);
+    }
+
+    // --- Editor Logic ---
     function openEditor(dayId, evId=null) {
-        currentDayId = dayId; currentEvId = evId;
-        document.getElementById('editor-modal').classList.add('active');
+        currentDayId = dayId || currentDayId; currentEvId = evId || currentEvId;
+        document.getElementById('editor-overlay').style.display = 'flex';
+        
         // Reset
         document.getElementById('e-start').value = '10:00'; document.getElementById('e-end').value = '11:00';
         document.getElementById('e-title').value = ''; document.getElementById('e-cost').value = '';
-        document.getElementById('e-desc').value = ''; document.getElementById('e-img').value = ''; document.getElementById('e-planb').value = '';
+        document.getElementById('e-desc').value = ''; document.getElementById('e-note').value = '';
+        document.getElementById('e-img').value = ''; document.getElementById('e-todos').value = '';
+        document.getElementById('e-advice').value = ''; document.getElementById('e-planb').value = '';
         document.getElementById('e-paid').checked = false; document.getElementById('e-cash').checked = false;
-        
-        if(evId) {
-             const ev = appData.events['d'+dayId].find(e => e.id === evId);
+
+        if(currentEvId) {
+             const ev = appData.events['d'+currentDayId].find(e=>e.id===currentEvId);
              document.getElementById('e-start').value = ev.start; document.getElementById('e-end').value = ev.end;
              document.getElementById('e-title').value = ev.title; document.getElementById('e-cost').value = ev.cost;
-             document.getElementById('e-desc').value = ev.desc; document.getElementById('e-img').value = ev.img || '';
-             document.getElementById('e-planb').value = ev.planb || '';
+             document.getElementById('e-desc').value = ev.desc; document.getElementById('e-note').value = ev.note || '';
+             document.getElementById('e-img').value = ev.img || ''; 
+             document.getElementById('e-todos').value = ev.todos ? ev.todos.map(t=>t.text).join('\n') : '';
+             document.getElementById('e-advice').value = ev.advice || '';
              document.getElementById('e-paid').checked = ev.paid || false;
              document.getElementById('e-cash').checked = ev.cashOnly || false;
         }
     }
-
+    
+    function closeEditor() { document.getElementById('editor-overlay').style.display = 'none'; }
+    
     function saveEvent() {
         const title = document.getElementById('e-title').value;
         if(!title) return alert('請輸入名稱');
+        
+        const todoRaw = document.getElementById('e-todos').value;
+        const newTodos = todoRaw.split('\n').filter(t=>t.trim()).map(t=>({text:t, done:false}));
+
         const newEv = {
             id: currentEvId || 'e'+Date.now(),
             start: document.getElementById('e-start').value, end: document.getElementById('e-end').value,
@@ -763,49 +786,48 @@
             paid: document.getElementById('e-paid').checked,
             cashOnly: document.getElementById('e-cash').checked,
             desc: document.getElementById('e-desc').value,
+            note: document.getElementById('e-note').value,
             img: document.getElementById('e-img').value,
-            planb: document.getElementById('e-planb').value
+            advice: document.getElementById('e-advice').value,
+            planb: document.getElementById('e-planb').value,
+            todos: newTodos
         };
+        
         if(!appData.events['d'+currentDayId]) appData.events['d'+currentDayId] = [];
         if(currentEvId) {
             const idx = appData.events['d'+currentDayId].findIndex(e=>e.id===currentEvId);
             appData.events['d'+currentDayId][idx] = newEv;
         } else { appData.events['d'+currentDayId].push(newEv); }
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
-        closeEditor(); renderAll();
+        
+        persist(); closeEditor(); renderAll();
+        if(currentEvId) openDrawer(currentEvId, currentDayId);
+    }
+    
+    function deleteEvent() {
+        if(confirm('刪除？')) {
+            appData.events['d'+currentDayId] = appData.events['d'+currentDayId].filter(e=>e.id!==currentEvId);
+            persist(); closeDrawer(); renderAll();
+        }
     }
 
-    // (Other logic same as V22/V23)
-    function deleteEvent() { if(confirm('刪除？')) { appData.events['d'+currentDayId] = appData.events['d'+currentDayId].filter(e=>e.id!==currentEvId); persist(); closeDrawer(); renderAll(); } }
-    function persist() { localStorage.setItem(STORAGE_KEY, JSON.stringify(appData)); }
+    // --- Utils ---
     function setMobileDay(id) { currentMobileDay = id; renderMobile(); }
-    function enterApp(m) { document.getElementById('portal').classList.add('hidden'); switchTab('desktop'); }
-    function switchTab(tab) {
-        ['desktop','mobile','db'].forEach(t => document.getElementById(t+'-view').style.display = 'none');
-        document.getElementById(tab+'-view').style.display = 'block';
-    }
-    function closeDrawer() { document.getElementById('drawer-backdrop').classList.remove('active'); document.getElementById('detail-drawer').classList.remove('active'); if(isPinned) togglePin(); }
-    function togglePin() { isPinned = !isPinned; document.body.classList.toggle('drawer-pinned', isPinned); }
-    function openDrawer(evId, dayId) {
-        currentEvId = evId; currentDayId = dayId;
-        const ev = appData.events['d'+dayId].find(e=>e.id===evId);
-        if(!ev) return;
-        document.getElementById('d-drawer-title').innerText = ev.title;
-        document.getElementById('d-drawer-type').innerText = ev.type.toUpperCase();
-        document.getElementById('d-drawer-time').innerText = `${ev.start} - ${ev.end}`;
-        document.getElementById('d-drawer-cost').innerText = `¥${ev.cost} ${ev.paid?'(已付)':''}`;
-        document.getElementById('d-drawer-desc').innerText = ev.desc || '-';
-        const imgCont = document.getElementById('d-drawer-img-container');
-        if(ev.img) { imgCont.style.display='block'; document.getElementById('d-drawer-img').src=ev.img; } else { imgCont.style.display='none'; }
-        if(!isPinned) document.getElementById('drawer-backdrop').classList.add('active');
-        document.getElementById('detail-drawer').classList.add('active');
+    function persist() { localStorage.setItem(STORAGE_KEY, JSON.stringify(appData)); }
+    function updateDashboard() {
+        let total = 0, cashNeeded = 0;
+        Object.values(appData.events).forEach(evs => evs.forEach(e => {
+            total += (e.cost||0);
+            if(e.cashOnly && !e.paid) cashNeeded += (e.cost||0);
+        }));
+        document.getElementById('dash-total').innerText = `¥${total.toLocaleString()}`;
+        document.getElementById('dash-cash').innerText = `¥${cashNeeded.toLocaleString()}`;
     }
     function exportData() {
         const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appData));
-        const node = document.createElement('a'); node.setAttribute("href", dataStr); node.setAttribute("download", "kyushu_plan_v24.json"); document.body.appendChild(node); node.click(); node.remove();
+        const node = document.createElement('a'); node.setAttribute("href", dataStr); node.setAttribute("download", "kyushu_plan_v26.json"); document.body.appendChild(node); node.click(); node.remove();
     }
     function importData() { document.getElementById('import-file').click(); }
-    function processImport(input) { const file = input.files[0]; const reader = new FileReader(); reader.onload = (e) => { appData = JSON.parse(e.target.result); persist(); renderAll(); }; reader.readAsText(file); }
+    function processImport(input) { const file = input.files[0]; const reader = new FileReader(); reader.onload = (e) => { appData = JSON.parse(e.target.result); persist(); location.reload(); }; reader.readAsText(file); }
 
     init();
   </script>
