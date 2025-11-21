@@ -2,753 +2,754 @@
 <html lang="zh-Hant">
 <head>
   <meta charset="UTF-8" />
-  <title>2025 九州旅行指揮中心 V19</title>
+  <title>2025 九州旅行指揮中心 V21</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-  <!-- Google Fonts & Icons -->
+  
+  <!-- Fonts & Icons -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+TC:wght@400;500;700;900&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
   
   <style>
     :root {
-      --primary: #0f172a; --primary-light: #334155;
-      --accent: #3b82f6; 
-      --bg-body: #f8fafc; --bg-surface: #ffffff;
-      --text-main: #1e293b; --text-sub: #64748b; 
+      /* 九州印象色 */
+      --primary: #1e3a8a;       
+      --primary-light: #3b82f6; 
+      --accent: #f97316;        
+      --bg-body: #f4f5f7;       
+      --bg-surface: #ffffff;
+      --text-main: #1e293b;
+      --text-sub: #64748b;
       --border: #e2e8f0;
       
-      /* Functional Colors */
-      --color-transport: #0ea5e9; 
-      --color-food: #f97316;      
-      --color-spot: #10b981;      
-      --color-stay: #8b5cf6;      
-
-      --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-      --shadow-card: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-      --shadow-float: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+      /* Semantic Colors */
+      --color-transport: #0ea5e9;
+      --color-food: #f97316;
+      --color-spot: #10b981;
+      --color-stay: #8b5cf6;
+      
+      /* Shadows */
+      --shadow-sm: 0 1px 2px 0 rgba(0,0,0,0.05);
+      --shadow-card: 0 4px 12px rgba(0,0,0,0.05), 0 1px 3px rgba(0,0,0,0.05);
+      --shadow-float: 0 20px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1);
     }
 
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     body { 
         font-family: 'Inter', 'Noto Sans TC', sans-serif; 
         background: var(--bg-body); margin: 0; 
-        color: var(--text-main); line-height: 1.5; 
-        padding-bottom: 80px; 
-        overflow-x: hidden; transition: padding-left 0.3s ease; 
+        color: var(--text-main); line-height: 1.6; 
+        padding-bottom: 90px;
+        overflow-x: hidden;
     }
 
-    /* --- Components --- */
-    .btn { padding: 8px 16px; border-radius: 10px; border: 1px solid var(--border); background: white; cursor: pointer; font-size: 13px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s; color: var(--text-main); }
-    .btn:hover { background: #f1f5f9; transform: translateY(-1px); }
-    .btn-primary { background: var(--text-main); color: white; border: none; box-shadow: 0 4px 12px rgba(15, 23, 42, 0.2); }
-    .btn-primary:hover { background: #334155; }
-    .btn-danger { color: #ef4444; border-color: #fee2e2; background: #fef2f2; }
-    
-    .tag { font-size: 10px; padding: 2px 6px; border-radius: 4px; font-weight: 700; display: inline-flex; align-items: center; gap: 3px; }
-    
+    /* --- Buttons --- */
+    .btn { 
+        padding: 8px 16px; border-radius: 12px; border: 1px solid var(--border); 
+        background: white; cursor: pointer; font-size: 13px; font-weight: 600; 
+        display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s; 
+        color: var(--text-main); box-shadow: var(--shadow-sm);
+    }
+    .btn:active { transform: scale(0.98); }
+    .btn-primary { background: var(--primary); color: white; border: none; }
+    .btn-danger { color: #ef4444; background: #fef2f2; border-color: #fee2e2; }
+    .icon-btn { background: none; border: none; cursor: pointer; padding: 8px; border-radius: 50%; color: var(--text-sub); }
+    .icon-btn:hover { background: rgba(0,0,0,0.05); color: var(--text-main); }
+
     /* --- Portal --- */
-    #portal { position: fixed; inset: 0; background: radial-gradient(circle at top right, #1e293b, #0f172a); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; transition: opacity 0.5s; }
+    #portal { 
+        position: fixed; inset: 0; background: radial-gradient(circle at top right, #1e293b, #0f172a); 
+        z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; 
+        color: white; transition: opacity 0.4s; 
+    }
     #portal.hidden { opacity: 0; pointer-events: none; }
-    .portal-cards { display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; }
-    .portal-card { background: rgba(255,255,255,0.05); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); border-radius: 24px; padding: 40px; width: 200px; cursor: pointer; text-align: center; transition: transform 0.3s; display: inline-flex; flex-direction: column; align-items: center; gap: 16px; margin: 10px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); }
-    .portal-card:hover { transform: translateY(-8px); background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.3); }
-    .portal-card span { font-size: 40px; }
-
-    /* --- Bottom Navigation --- */
-    .bottom-nav {
-        position: fixed; bottom: 0; left: 0; width: 100%;
-        background: rgba(255,255,255,0.9); backdrop-filter: blur(10px);
-        border-top: 1px solid var(--border);
-        display: none; justify-content: space-around; padding: 8px 0;
-        z-index: 1000; padding-bottom: env(safe-area-inset-bottom);
+    .portal-cards { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; max-width: 800px; }
+    .portal-card { 
+        background: rgba(255,255,255,0.1); backdrop-filter: blur(12px); 
+        border: 1px solid rgba(255,255,255,0.15); border-radius: 24px; 
+        padding: 32px 24px; width: 160px; cursor: pointer; text-align: center; 
+        transition: transform 0.3s, background 0.3s; 
     }
-    .nav-item { display: flex; flex-direction: column; align-items: center; font-size: 10px; color: var(--text-sub); background: none; border: none; cursor: pointer; gap: 4px; width: 25%; }
-    .nav-item.active { color: var(--accent); font-weight: 600; }
-    .nav-item span { font-size: 24px; transition: transform 0.2s; }
-    .nav-item.active span { transform: translateY(-2px); }
-    @media (max-width: 768px) { .bottom-nav { display: flex; } }
+    .portal-card:hover { transform: translateY(-8px); background: rgba(255,255,255,0.2); }
 
-    /* --- Detail Drawer --- */
-    .drawer-backdrop { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.2); backdrop-filter: blur(2px); z-index: 1999; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
-    .drawer-backdrop.active { opacity: 1; pointer-events: auto; }
-    
-    .detail-drawer {
-        position: fixed; top: 0; left: 0; bottom: 0; width: 420px; max-width: 90vw;
-        background: white; z-index: 2000;
-        box-shadow: 20px 0 50px rgba(0,0,0,0.1);
-        transform: translateX(-100%);
-        transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-        display: flex; flex-direction: column; border-right: 1px solid var(--border);
+    /* --- Mobile View --- */
+    #mobile-view { display: none; max-width: 600px; margin: 0 auto; background: #f4f5f7; min-height: 100vh; }
+    #mobile-view.active { display: block; animation: fadeIn 0.4s; }
+
+    .m-header {
+        background: linear-gradient(135deg, var(--primary) 0%, #3b82f6 100%);
+        color: white; padding: 24px 20px 60px;
+        border-radius: 0 0 32px 32px; position: relative;
+        box-shadow: 0 10px 30px -10px rgba(30, 58, 138, 0.5);
     }
-    .detail-drawer.active { transform: translateX(0); }
+    .m-header-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; }
+    .m-trip-title { font-size: 28px; line-height: 1.2; text-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+    .m-trip-subtitle { font-size: 13px; opacity: 0.9; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; }
+
+    .m-day-selector-container {
+        margin-top: -40px; padding: 0 20px; overflow-x: auto; 
+        white-space: nowrap; scrollbar-width: none; padding-bottom: 20px;
+    }
+    .m-day-btn {
+        display: inline-flex; flex-direction: column; align-items: center; justify-content: center;
+        width: 60px; height: 70px; background: white; border-radius: 35px;
+        margin-right: 12px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        transition: all 0.2s; border: 2px solid transparent; color: var(--text-sub); flex-shrink: 0;
+    }
+    .m-day-btn.active {
+        background: var(--primary); color: white; transform: translateY(-4px);
+        box-shadow: 0 8px 20px rgba(30, 58, 138, 0.3); border-color: white;
+    }
+    .m-day-num { font-size: 18px; font-weight: 800; line-height: 1; margin-bottom: 2px; }
+    .m-day-txt { font-size: 10px; font-weight: 600; }
+
+    .m-content { padding: 0 20px; }
+    .m-tip-card {
+        background: white; border-radius: 16px; padding: 16px;
+        border-left: 4px solid var(--accent); box-shadow: var(--shadow-card); margin-bottom: 24px;
+        display: flex; gap: 12px; align-items: flex-start;
+    }
+    .m-tip-icon { color: var(--accent); background: #fff7ed; padding: 8px; border-radius: 50%; }
     
-    body.drawer-pinned { padding-left: 420px; }
-    body.drawer-pinned .drawer-backdrop { display: none; }
-    body.drawer-pinned .detail-drawer { box-shadow: none; border-right: 1px solid var(--border); }
-    @media (max-width: 1024px) { body.drawer-pinned { padding-left: 0; } } 
+    .m-timeline { position: relative; padding-left: 24px; }
+    .m-timeline-line { 
+        position: absolute; left: 11px; top: 10px; bottom: 0; 
+        width: 2px; background: repeating-linear-gradient(to bottom, #cbd5e1 0, #cbd5e1 6px, transparent 6px, transparent 12px); 
+        z-index: 0; 
+    }
+    .m-event-item { position: relative; margin-bottom: 32px; z-index: 1; }
+    .m-event-icon-box {
+        position: absolute; left: -24px; top: 0; width: 24px; height: 24px; border-radius: 50%;
+        background: white; border: 2px solid var(--border); display: flex; align-items: center; justify-content: center;
+        z-index: 2; color: var(--text-sub); font-size: 14px;
+    }
+    .type-move .m-event-icon-box { border-color: var(--color-transport); color: var(--color-transport); background: #f0f9ff; }
+    .type-food .m-event-icon-box { border-color: var(--color-food); color: var(--color-food); background: #fff7ed; }
+    .type-spot .m-event-icon-box { border-color: var(--color-spot); color: var(--color-spot); background: #f0fdf4; }
+    .type-stay .m-event-icon-box { border-color: var(--color-stay); color: var(--color-stay); background: #f5f3ff; }
 
-    .drawer-header { padding: 24px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: flex-start; background: #f8fafc; }
-    .drawer-body { flex: 1; overflow-y: auto; padding: 24px; }
-    .drawer-footer { padding: 16px 24px; border-top: 1px solid var(--border); background: white; display: flex; justify-content: space-between; align-items: center; }
+    .m-event-card {
+        background: white; border-radius: 16px; overflow: hidden;
+        box-shadow: var(--shadow-card); transition: transform 0.2s; cursor: pointer;
+        border: 1px solid rgba(0,0,0,0.03);
+    }
+    .m-event-card:active { transform: scale(0.98); }
+    .m-card-img { height: 120px; width: 100%; background-size: cover; background-position: center; position: relative; display: none; }
+    .m-card-img.has-img { display: block; }
+    .m-img-badge { position: absolute; bottom: 8px; left: 8px; background: rgba(0,0,0,0.6); color: white; font-size: 10px; padding: 2px 8px; border-radius: 99px; backdrop-filter: blur(4px); }
 
-    /* Todo List Styles */
-    .drawer-todo-list { margin-bottom: 24px; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
-    .drawer-todo-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-bottom: 1px solid var(--border); background: white; cursor: pointer; transition: background 0.2s; }
-    .drawer-todo-item:last-child { border-bottom: none; }
-    .drawer-todo-item:hover { background: #f8fafc; }
-    .drawer-todo-text { font-size: 14px; color: var(--text-main); flex: 1; }
-    .drawer-todo-text.done { text-decoration: line-through; color: var(--text-sub); }
-    .todo-checkbox { width: 18px; height: 18px; accent-color: var(--color-spot); cursor: pointer; }
+    .m-card-body { padding: 16px; }
+    .m-card-header { display: flex; justify-content: space-between; margin-bottom: 8px; }
+    .m-time-badge { background: #f1f5f9; color: var(--text-main); font-family: 'JetBrains Mono'; font-size: 12px; padding: 2px 8px; border-radius: 6px; font-weight: 600; }
+    
+    .tag-transport-warning { background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; display: flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 99px; font-size: 10px; margin-top: 6px; width: fit-content; }
+
+    .m-card-title { font-size: 16px; font-weight: 700; color: var(--text-main); margin-bottom: 6px; line-height: 1.4; }
+    .m-card-desc { font-size: 13px; color: var(--text-sub); line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .m-card-footer { margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--border); display: flex; justify-content: space-between; align-items: center; }
+    .m-cost { font-weight: 700; color: var(--text-main); font-size: 14px; }
+    .m-cost.paid { color: #10b981; display: flex; align-items: center; gap: 4px; }
 
     /* --- Desktop View --- */
-    #desktop-view { display: none; max-width: 100%; margin: 0 auto; padding: 24px; animation: fadeIn 0.5s; }
-    #desktop-view.active { display: block; }
-    .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; background: white; padding: 16px 24px; border-radius: 16px; border: 1px solid var(--border); box-shadow: var(--shadow-sm); position: sticky; top: 10px; z-index: 90; }
-    
-    .dashboard-stats { display: flex; gap: 24px; align-items: center; }
-    .stat-item { display: flex; flex-direction: column; }
-    .stat-label { font-size: 11px; color: var(--text-sub); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
-    .stat-val { font-size: 20px; font-weight: 800; color: var(--text-main); font-family: 'JetBrains Mono', monospace; }
-    .stat-sub { font-size: 12px; color: var(--text-sub); }
-    .stat-val.pending { color: #ef4444; }
+    #desktop-view { display: none; max-width: 1800px; margin: 0 auto; padding: 24px; }
+    #desktop-view.active { display: block; animation: fadeIn 0.5s; }
+    .d-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background: white; padding: 20px; border-radius: 16px; border: 1px solid var(--border); }
 
-    /* --- Visual Timeline --- */
-    .main-table-wrapper { overflow-x: auto; background: white; border-radius: 20px; border: 1px solid var(--border); box-shadow: var(--shadow-card); }
-    table { width: 100%; min-width: 1800px; border-collapse: separate; border-spacing: 0; }
-    th { position: sticky; top: 0; background: #f8fafc; z-index: 20; padding: 16px; border-bottom: 1px solid var(--border); text-align: left; color: var(--text-sub); font-size: 13px; }
-    td { padding: 0; border-right: 1px dashed var(--border); vertical-align: top; width: 11.11%; min-width: 200px; position: relative; transition: background 0.2s; }
-    td:hover { background: #fcfcfc; }
+    /* --- Database View (Restored!) --- */
+    #db-view { display: none; max-width: 1200px; margin: 0 auto; padding: 24px; }
+    #db-view.active { display: block; animation: fadeIn 0.5s; }
     
-    .timeline-container {
-        position: relative;
-        height: 1200px; 
-        background-image: linear-gradient(to bottom, var(--border) 1px, transparent 1px);
-        background-size: 100% 60px; 
-        background-position: 0 20px;
+    .db-toolbar { display: flex; gap: 12px; margin-bottom: 20px; background: white; padding: 16px; border-radius: 16px; border: 1px solid var(--border); flex-wrap: wrap; }
+    .db-search { flex: 1; padding: 8px 12px; border: 1px solid var(--border); border-radius: 8px; outline: none; font-size: 14px; min-width: 200px; }
+    .db-filter { padding: 8px 12px; border: 1px solid var(--border); border-radius: 8px; background: white; font-size: 13px; cursor: pointer; transition: all 0.2s; }
+    .db-filter.active { background: var(--primary); color: white; border-color: var(--primary); }
+    
+    .db-table-container { background: white; border-radius: 16px; border: 1px solid var(--border); overflow: hidden; box-shadow: var(--shadow-sm); margin-bottom: 24px; }
+    .db-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .db-table th { background: #f8fafc; padding: 12px 16px; text-align: left; border-bottom: 2px solid var(--border); color: var(--text-sub); font-weight: 600; position: sticky; top: 0; }
+    .db-table td { padding: 12px 16px; border-bottom: 1px solid var(--border); color: var(--text-main); vertical-align: top; }
+    .db-table tr:hover { background: #f1f5f9; cursor: pointer; }
+    
+    .tag-type { padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; display: inline-block; text-transform: uppercase; }
+    .tag-type.move { background: #e0f2fe; color: #0369a1; }
+    .tag-type.food { background: #fff7ed; color: #c2410c; }
+    .tag-type.spot { background: #f0fdf4; color: #15803d; }
+    .tag-type.stay { background: #f5f3ff; color: #7e22ce; }
+    
+    .db-section-title { font-size: 16px; font-weight: 700; color: var(--primary); margin-bottom: 12px; margin-top: 32px; display: flex; align-items: center; gap: 8px; }
+
+    /* --- Bottom Nav --- */
+    .bottom-nav {
+        position: fixed; bottom: 0; left: 0; width: 100%;
+        background: rgba(255,255,255,0.95); backdrop-filter: blur(20px);
+        border-top: 1px solid rgba(0,0,0,0.05);
+        display: flex; justify-content: space-around; padding: 10px 0;
+        z-index: 1000; padding-bottom: calc(10px + env(safe-area-inset-bottom));
+        box-shadow: 0 -4px 20px rgba(0,0,0,0.05);
     }
-    .time-marker { position: absolute; left: 6px; font-size: 10px; color: #cbd5e1; width: 30px; pointer-events: none; font-family: 'JetBrains Mono'; }
-    
+    .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; background: none; border: none; color: #94a3b8; font-size: 10px; font-weight: 600; cursor: pointer; width: 20%; }
+    .nav-item span { font-size: 24px; transition: transform 0.2s; }
+    .nav-item.active { color: var(--primary); }
+    .nav-item.active span { transform: translateY(-2px); }
+
+    /* --- Drawers & Modals --- */
+    .drawer-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.4); backdrop-filter: blur(2px); z-index: 2000; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
+    .drawer-backdrop.active { opacity: 1; pointer-events: auto; }
+    .detail-drawer { position: fixed; top: 0; left: 0; bottom: 0; width: 450px; max-width: 90%; background: white; z-index: 2001; transform: translateX(-100%); transition: transform 0.3s ease; display: flex; flex-direction: column; box-shadow: 10px 0 50px rgba(0,0,0,0.15); }
+    .detail-drawer.active { transform: translateX(0); }
+
+    /* Desktop Timeline Styles (Restored V16 logic with V20 skin) */
     .event-block {
-        position: absolute; left: 40px; right: 8px;
-        border-radius: 12px; padding: 8px 10px;
-        font-size: 12px; cursor: pointer;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-        transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
-        display: flex; flex-direction: column; justify-content: center;
-        background-size: cover; background-position: center;
-        overflow: hidden; border: 1px solid rgba(0,0,0,0.05);
+        position: absolute; left: 40px; right: 8px; border-radius: 8px; padding: 6px 8px;
+        font-size: 12px; cursor: pointer; border-left: 4px solid; 
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05); transition: all 0.2s;
+        display: flex; flex-direction: column; justify-content: center; overflow: hidden;
+        background: white;
     }
-    .event-block:hover { transform: scale(1.03) translateY(-2px); z-index: 50; box-shadow: 0 12px 24px rgba(0,0,0,0.15); }
-    .event-block::before { content: ''; position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(255,255,255,0.95), rgba(255,255,255,0.85)); z-index: 0; transition: opacity 0.2s; }
-    .event-block:hover::before { opacity: 0.95; }
-    
-    .ev-content { position: relative; z-index: 1; display: flex; flex-direction: column; height: 100%; }
-    .ev-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 2px; }
-    .ev-time { font-size: 10px; font-weight: 700; opacity: 0.6; font-family: 'JetBrains Mono'; }
-    .ev-title { font-weight: 700; font-size: 13px; line-height: 1.3; color: var(--text-main); margin-bottom: 2px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-    .ev-bottom-row { display: flex; gap: 4px; margin-top: auto; flex-wrap: wrap; }
-    .ev-badge { font-size: 9px; padding: 1px 4px; border-radius: 4px; background: rgba(0,0,0,0.05); color: var(--text-sub); }
-    
-    .ev-todo-badge {
-        font-size: 9px; font-weight: 700;
-        background: #dcfce7; color: #166534;
-        padding: 1px 5px; border-radius: 4px;
-        display: inline-flex; align-items: center; gap: 2px;
-        border: 1px solid #bbf7d0;
-    }
+    .event-block:hover { transform: scale(1.03); z-index: 50; box-shadow: 0 8px 20px rgba(0,0,0,0.15); }
+    .type-move.d-block { background-color: #f0f9ff; border-left-color: var(--color-transport); border: 1px dashed #bae6fd; border-left: 4px solid var(--color-transport); }
+    .type-food.d-block { background-color: #fff7ed; border-left-color: var(--color-food); }
+    .type-spot.d-block { background-color: #f0fdf4; border-left-color: var(--color-spot); }
+    .type-stay.d-block { background-color: #f5f3ff; border-left-color: var(--color-stay); }
 
-    .type-move { background-color: #f0f9ff; border-left: 4px solid var(--color-transport); border-radius: 8px; border: 1px dashed #bae6fd; border-left: 4px solid var(--color-transport); }
-    .type-food { border-left: 4px solid var(--color-food); background-color: #fff7ed; }
-    .type-spot { border-left: 4px solid var(--color-spot); background-color: #f0fdf4; }
-    .type-stay { border-left: 4px solid var(--color-stay); background-color: #f5f3ff; }
-
-    /* --- DB & Mobile --- */
-    #db-view, #mobile-view { display: none; padding: 20px; animation: fadeIn 0.5s; max-width: 800px; margin: 0 auto; }
-    #db-view.active, #mobile-view.active { display: block; }
-    
-    .m-event-card { background: white; border: 1px solid var(--border); border-radius: 16px; padding: 16px; margin-bottom: 16px; display: flex; gap: 16px; align-items: center; box-shadow: var(--shadow-sm); }
-    .m-time-box { display: flex; flex-direction: column; align-items: center; min-width: 50px; font-family: 'JetBrains Mono'; font-size: 12px; color: var(--text-sub); font-weight: 600; }
-    .m-line { width: 2px; flex-grow: 1; background: var(--border); margin: 4px 0; }
-    
     /* Editor Modal */
-    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 2100; display: none; justify-content: center; align-items: center; backdrop-filter: blur(4px); }
-    .modal-overlay.active { display: flex; }
-    .editor-modal { background: white; width: 90%; max-width: 450px; border-radius: 24px; padding: 24px; box-shadow: var(--shadow-float); animation: slideUp 0.3s; max-height: 90vh; overflow-y: auto; }
+    #editor-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 2100; justify-content: center; align-items: center; backdrop-filter: blur(4px); }
+    .editor-modal { background: white; width: 90%; max-width: 450px; border-radius: 24px; padding: 24px; max-height: 90vh; overflow-y: auto; box-shadow: var(--shadow-float); animation: fadeIn 0.2s; }
 
-    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    .form-group { margin-bottom: 16px; }
-    .form-label { display: block; font-size: 11px; font-weight: 700; color: var(--text-sub); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
-    .form-input { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; outline: none; transition: border-color 0.2s; font-family: inherit; }
-    .form-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
-    
-    .checkbox-wrapper { display: flex; align-items: center; gap: 8px; margin-top: 6px; cursor: pointer; user-select: none; }
-    .checkbox-input { width: 18px; height: 18px; accent-color: var(--color-spot); cursor: pointer; }
-    
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-    @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
   </style>
 </head>
 <body>
 
-  <!-- 0. Portal -->
+  <!-- Portal -->
   <div id="portal">
-    <h1 style="font-size:32px; font-weight:800; margin-bottom:8px;">2025 九州指揮中心 V19</h1>
-    <div style="font-size:14px; opacity:0.7; margin-bottom:40px;">完整入口修復版：所有入口功能回歸</div>
-    
+    <h1 style="font-size:32px; font-weight:800; margin-bottom:8px;">2025 九州指揮中心</h1>
+    <div style="font-size:14px; opacity:0.8; margin-bottom:40px;">V21 雙核旗艦版：設計美學 X 硬核資料庫</div>
     <div class="portal-cards">
-        <div class="portal-card" onclick="switchTab('desktop')">
-            <span class="material-symbols-rounded">view_timeline</span>
-            <div style="font-weight:700;">戰略視圖 (Desktop)</div>
-        </div>
         <div class="portal-card" onclick="switchTab('mobile')">
-            <span class="material-symbols-rounded">smartphone</span>
-            <div style="font-weight:700;">隨行模式 (Mobile)</div>
+            <span class="material-symbols-rounded" style="font-size:40px;">smartphone</span>
+            <div style="font-weight:700;">隨行模式</div>
+        </div>
+        <div class="portal-card" onclick="switchTab('desktop')">
+            <span class="material-symbols-rounded" style="font-size:40px;">view_timeline</span>
+            <div style="font-weight:700;">戰略視圖</div>
         </div>
         <div class="portal-card" onclick="switchTab('db')">
-            <span class="material-symbols-rounded">table_rows</span>
-            <div style="font-weight:700;">資料庫 (Database)</div>
+            <span class="material-symbols-rounded" style="font-size:40px;">table_view</span>
+            <div style="font-weight:700;">資料庫</div>
         </div>
     </div>
   </div>
 
-  <!-- 1. Detail Drawer -->
-  <div class="drawer-backdrop" id="drawer-backdrop" onclick="closeDrawer()"></div>
-  <div class="detail-drawer" id="detail-drawer">
-    <div class="drawer-header">
-        <div style="flex:1">
-            <div id="d-badge" style="font-size:10px; font-weight:700; color:var(--text-sub); text-transform:uppercase; margin-bottom:4px;">TYPE</div>
-            <div id="d-title" style="font-size:20px; font-weight:800; line-height:1.2;">Title</div>
-        </div>
-        <div style="display:flex; gap:4px;">
-            <button class="btn" style="padding:6px;" onclick="togglePin()" title="固定"><span class="material-symbols-rounded" style="font-size:18px;">push_pin</span></button>
-            <button class="btn" style="padding:6px;" onclick="closeDrawer()" title="關閉"><span class="material-symbols-rounded" style="font-size:18px;">close</span></button>
-        </div>
-    </div>
-    <div class="drawer-body">
-        <!-- Todo List Section -->
-        <div id="d-todo-container" style="margin-bottom:24px;">
-            <div style="font-size:11px; font-weight:700; color:var(--text-sub); margin-bottom:8px; text-transform:uppercase;">📋 待辦事項 (點擊切換完成)</div>
-            <div class="drawer-todo-list" id="d-todo-list"></div>
-        </div>
-
-        <!-- Plan B Toggle -->
-        <div id="d-plan-b-alert" style="display:none; background:#f1f5f9; border-radius:12px; padding:12px; margin-bottom:20px; border:1px dashed var(--text-sub);">
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-                <span style="font-weight:600; font-size:13px; display:flex; align-items:center; gap:6px;"><span class="material-symbols-rounded">rainy</span> 備案行程可用</span>
-                <button class="btn" style="font-size:11px; padding:4px 10px;" onclick="togglePlanBView()">切換查看</button>
-            </div>
-            <div id="d-plan-b-text" style="margin-top:8px; font-size:13px; color:var(--text-sub); display:none;"></div>
-        </div>
-
-        <div class="form-grid">
-            <div><div class="info-label">時間</div><div id="d-time" style="font-weight:600;"></div></div>
-            <div><div class="info-label">預算</div><div id="d-cost" style="font-weight:600;"></div></div>
-        </div>
-        <div style="margin-top:20px;">
-             <div class="info-label">詳細說明 & 攻略</div>
-             <div id="d-desc" style="font-size:14px; line-height:1.6; color:var(--text-main);"></div>
-        </div>
-        <div style="margin-top:20px; padding:16px; background:#f0f9ff; border-radius:12px; border:1px solid #bae6fd;">
-             <div style="font-size:11px; font-weight:700; color:#0284c7; margin-bottom:6px; text-transform:uppercase;">👨‍🏫 老師傅建議</div>
-             <div id="d-advice" style="font-size:13px; color:#0c4a6e;"></div>
-        </div>
-    </div>
-    <div class="drawer-footer">
-        <button class="btn btn-danger" onclick="deleteEvent()">刪除</button>
-        <button class="btn btn-primary" onclick="openEditor()">編輯 / 待辦</button>
-    </div>
-  </div>
-
-  <!-- 2. Desktop View -->
-  <div id="desktop-view">
-    <div class="header">
-      <div class="title">
-          <div style="font-size:11px; font-weight:700; color:var(--text-sub);">KYUSHU 2025</div>
-          <h1>行程戰略圖</h1>
-      </div>
-      <div class="dashboard-stats">
-          <div class="stat-item">
-              <div class="stat-label">總預算 (每人)</div>
-              <div class="stat-val" id="dash-total">¥0</div>
-          </div>
-          <div class="stat-item">
-              <div class="stat-label">尚未支付</div>
-              <div class="stat-val pending" id="dash-pending">¥0</div>
-              <div class="stat-sub">現金/現場刷卡</div>
-          </div>
-      </div>
-      <div style="display:flex; gap:8px;">
-         <button class="btn" onclick="switchTab('mobile')"><span class="material-symbols-rounded">smartphone</span> 手機版</button>
-         <button class="btn" onclick="switchTab('db')"><span class="material-symbols-rounded">table_rows</span> 資料庫</button>
-         <button class="btn" onclick="exportData()"><span class="material-symbols-rounded">download</span> 備份</button>
-         <button class="btn" onclick="importData()"><span class="material-symbols-rounded">upload</span> 還原</button>
-         <input type="file" id="import-file" style="display:none" onchange="processImport(this)">
-      </div>
-    </div>
-
-    <div class="main-table-wrapper">
-      <table id="timeline-table">
-        <thead><tr id="header-row"></tr></thead>
-        <tbody>
-           <tr id="timeline-row"></tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-  <!-- 3. Mobile View -->
+  <!-- Mobile View -->
   <div id="mobile-view">
-      <div style="padding:20px;">
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-              <div>
-                  <h2 style="font-size:24px; margin-bottom:4px;">我的行程</h2>
-                  <div style="font-size:13px; color:var(--text-sub);">2025.12.10 - 12.18</div>
-              </div>
-              <button class="btn" onclick="switchTab('desktop')">電腦版</button>
+    <div class="m-header">
+        <div class="m-header-top">
+            <div>
+                <div class="m-trip-subtitle">JAPAN TRIP 2025</div>
+                <div class="m-trip-title">九州縱斷<br>鐵道溫泉之旅</div>
+            </div>
+            <div class="m-weather-badge">
+                <div style="font-size:20px; font-weight:800;">8°C</div>
+                <div style="font-size:10px;">預測平均</div>
+            </div>
+        </div>
+    </div>
+    <div class="m-day-selector-container" id="m-day-selector"></div>
+    <div class="m-content">
+        <div class="m-tip-card">
+            <div class="m-tip-icon"><span class="material-symbols-rounded">lightbulb</span></div>
+            <div>
+                <div style="font-size:12px; font-weight:700; color:var(--accent); margin-bottom:4px;">今日重點 / 老師傅叮嚀</div>
+                <div id="m-daily-advice" style="font-size:14px; color:var(--text-main); line-height:1.5;"></div>
+            </div>
+        </div>
+        <div class="m-timeline" id="m-timeline-list"></div>
+        <div style="height: 40px;"></div>
+    </div>
+  </div>
+
+  <!-- Desktop View -->
+  <div id="desktop-view">
+      <div class="d-header">
+          <div>
+              <div style="font-size:12px; color:var(--text-sub); font-weight:700;">COMMAND CENTER</div>
+              <h1 style="color:var(--primary);">行程戰略視圖</h1>
           </div>
-          <div id="m-list"></div>
+          <div style="display:flex; gap:10px;">
+              <button class="btn" onclick="exportData()">備份 JSON</button>
+              <button class="btn" onclick="importData()">還原</button>
+              <button class="btn btn-primary" onclick="window.print()">列印</button>
+          </div>
+          <input type="file" id="import-file" style="display:none" onchange="processImport(this)">
+      </div>
+      <div style="overflow:auto; border:1px solid var(--border); border-radius:16px; height:80vh;">
+          <table id="desktop-table" style="width:100%; min-width:1600px; border-collapse:separate; border-spacing:0;">
+              <thead><tr id="d-header-row" style="position:sticky; top:0; background:#f8fafc; z-index:10;"></tr></thead>
+              <tbody id="d-body-row"></tbody>
+          </table>
       </div>
   </div>
 
-  <!-- 4. Database View -->
+  <!-- Database View (The Real Deal) -->
   <div id="db-view">
-      <div style="padding:20px; max-width:900px; margin:0 auto;">
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-              <h2>資料庫</h2>
-              <button class="btn" onclick="switchTab('desktop')">返回圖表</button>
+      <div class="d-header">
+          <div>
+              <div style="font-size:12px; color:var(--text-sub); font-weight:700;">DATABASE</div>
+              <h1 style="color:var(--primary);">完整行程資料庫</h1>
           </div>
-          <input type="text" class="form-input" placeholder="搜尋行程..." onkeyup="renderDB(this.value)">
-          <div id="db-list" style="margin-top:20px;"></div>
+          <button class="btn" onclick="switchTab('desktop')">返回圖表</button>
+      </div>
+
+      <div class="db-toolbar">
+          <input type="text" class="db-search" placeholder="搜尋行程、備註..." onkeyup="renderDB(this.value)">
+          <button class="db-filter active" onclick="filterDb('all')">全部</button>
+          <button class="db-filter" onclick="filterDb('move')">交通</button>
+          <button class="db-filter" onclick="filterDb('food')">美食</button>
+          <button class="db-filter" onclick="filterDb('spot')">景點</button>
+          <button class="db-filter" onclick="filterDb('stay')">住宿</button>
+      </div>
+
+      <div class="db-table-container">
+          <table class="db-table">
+              <thead>
+                  <tr>
+                      <th style="width:120px">日期</th>
+                      <th style="width:100px">時間</th>
+                      <th style="width:80px">類型</th>
+                      <th>名稱</th>
+                      <th>詳細備註 & 攻略</th>
+                      <th style="width:100px">預算</th>
+                      <th style="width:60px">操作</th>
+                  </tr>
+              </thead>
+              <tbody id="db-tbody">
+                  <!-- JS Injected -->
+              </tbody>
+          </table>
+      </div>
+
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:24px;">
+          <div>
+              <div class="db-section-title"><span class="material-symbols-rounded">store</span> 店家營業資訊 & Tips</div>
+              <div class="db-table-container">
+                  <table class="db-table">
+                      <thead><tr><th>名稱</th><th>營業時間</th><th>Tips</th></tr></thead>
+                      <tbody id="ref-spot-tbody"></tbody>
+                  </table>
+              </div>
+          </div>
+          <div>
+              <div class="db-section-title"><span class="material-symbols-rounded">school</span> 每日老師傅叮嚀</div>
+              <div class="db-table-container">
+                  <table class="db-table">
+                      <thead><tr><th>日期</th><th>建議</th></tr></thead>
+                      <tbody id="ref-expert-tbody"></tbody>
+                  </table>
+              </div>
+          </div>
       </div>
   </div>
 
   <!-- Bottom Nav -->
   <div class="bottom-nav">
-      <button class="nav-item active" onclick="switchTab('desktop')"><span class="material-symbols-rounded">calendar_view_day</span>行程表</button>
-      <button class="nav-item" onclick="switchTab('mobile')"><span class="material-symbols-rounded">view_agenda</span>卡片</button>
+      <button class="nav-item active" onclick="switchTab('mobile')"><span class="material-symbols-rounded">explore</span>行程</button>
+      <button class="nav-item" onclick="switchTab('desktop')"><span class="material-symbols-rounded">map</span>戰略圖</button>
       <button class="nav-item" onclick="switchTab('db')"><span class="material-symbols-rounded">table_rows</span>資料庫</button>
       <button class="nav-item" onclick="exportData()"><span class="material-symbols-rounded">save</span>備份</button>
   </div>
 
+  <!-- Detail Drawer -->
+  <div class="drawer-backdrop" id="drawer-backdrop" onclick="closeDrawer()"></div>
+  <div class="detail-drawer" id="detail-drawer">
+      <div class="drawer-header">
+          <div>
+             <div class="text-sm font-weight-bold text-sub" id="d-drawer-type">TYPE</div>
+             <div style="font-size:20px; font-weight:800;" id="d-drawer-title">Title</div>
+          </div>
+          <button class="icon-btn" onclick="closeDrawer()"><span class="material-symbols-rounded">close</span></button>
+      </div>
+      <div class="drawer-body">
+          <div id="d-drawer-img-container" style="margin-bottom:20px; display:none;">
+              <img id="d-drawer-img" src="" style="width:100%; height:180px; object-fit:cover; border-radius:12px;">
+          </div>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:20px;">
+              <div style="background:#f1f5f9; padding:12px; border-radius:12px;">
+                  <div class="text-xs text-sub">時間</div>
+                  <div class="font-mono font-weight-bold" id="d-drawer-time"></div>
+              </div>
+              <div style="background:#f1f5f9; padding:12px; border-radius:12px;">
+                  <div class="text-xs text-sub">預算</div>
+                  <div class="font-mono font-weight-bold" id="d-drawer-cost"></div>
+              </div>
+          </div>
+          <div id="d-drawer-planb" style="display:none; background:#f1f5f9; padding:12px; border-radius:12px; margin-bottom:20px; border:1px dashed var(--text-sub);">
+              <div style="font-weight:700; font-size:13px; display:flex; align-items:center; gap:6px;">
+                  <span class="material-symbols-rounded">rainy</span> 備案行程
+              </div>
+              <div id="d-drawer-planb-text" style="font-size:13px; margin-top:4px; color:var(--text-sub);"></div>
+          </div>
+          <div style="margin-bottom:20px;">
+              <div class="text-xs font-weight-bold text-sub" style="margin-bottom:6px;">詳細攻略 & 備註</div>
+              <div id="d-drawer-desc" style="font-size:14px; line-height:1.6;"></div>
+          </div>
+          <div style="background:#f0f9ff; padding:16px; border-radius:12px; border:1px solid #bae6fd; margin-bottom:20px;">
+              <div style="font-size:11px; font-weight:700; color:#0284c7; margin-bottom:6px;">👨‍🏫 老師傅建議</div>
+              <div id="d-drawer-advice" style="font-size:13px; color:#0c4a6e;"></div>
+          </div>
+          <button class="btn" style="width:100%; justify-content:center;" onclick="openMap()">
+              <span class="material-symbols-rounded">map</span> Google Maps 導航
+          </button>
+      </div>
+      <div class="drawer-footer">
+          <button class="btn btn-danger" onclick="deleteEvent()">刪除</button>
+          <button class="btn btn-primary" onclick="openEditor()">編輯 / 加照片</button>
+      </div>
+  </div>
+
   <!-- Editor Modal -->
-  <div class="modal-overlay" id="editor-modal">
-    <div class="editor-modal">
-      <h3 style="margin-top:0;">編輯行程</h3>
-      
-      <div class="form-grid">
-          <div class="form-group">
-              <label class="form-label">開始時間</label>
-              <input type="time" class="form-input" id="e-start">
+  <div id="editor-overlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:2100; justify-content:center; align-items:center; backdrop-filter:blur(4px);">
+      <div class="editor-modal">
+          <h3 style="margin-top:0;">編輯行程</h3>
+          <input type="hidden" id="e-day-id"><input type="hidden" id="e-id">
+          <div style="margin-bottom:12px;">
+              <label class="text-xs font-weight-bold text-sub">標題</label>
+              <input id="e-title" class="btn" style="width:100%; text-align:left; cursor:text;" placeholder="行程名稱">
           </div>
-          <div class="form-group">
-              <label class="form-label">結束時間</label>
-              <input type="time" class="form-input" id="e-end">
+          <div style="display:flex; gap:10px; margin-bottom:12px;">
+              <div style="flex:1"><label class="text-xs font-weight-bold text-sub">開始</label><input type="time" id="e-start" class="btn" style="width:100%;"></div>
+              <div style="flex:1"><label class="text-xs font-weight-bold text-sub">結束</label><input type="time" id="e-end" class="btn" style="width:100%;"></div>
+          </div>
+          <div style="display:flex; gap:10px; margin-bottom:12px;">
+              <div style="flex:1">
+                  <label class="text-xs font-weight-bold text-sub">類型</label>
+                  <select id="e-type" class="btn" style="width:100%;">
+                      <option value="move">交通</option><option value="food">美食</option><option value="spot">景點</option><option value="stay">住宿</option>
+                  </select>
+              </div>
+              <div style="flex:1"><label class="text-xs font-weight-bold text-sub">預算</label><input type="number" id="e-cost" class="btn" style="width:100%; cursor:text;" placeholder="0"></div>
+          </div>
+          <div style="margin-bottom:12px;">
+              <label class="text-xs font-weight-bold text-sub">封面圖片網址</label>
+              <input id="e-img" class="btn" style="width:100%; text-align:left; cursor:text;">
+          </div>
+          <div style="margin-bottom:12px;">
+              <label class="text-xs font-weight-bold text-sub">備案</label>
+              <input id="e-planb" class="btn" style="width:100%; text-align:left; cursor:text;">
+          </div>
+          <div style="margin-bottom:20px;">
+              <label class="text-xs font-weight-bold text-sub">詳細備註</label>
+              <textarea id="e-desc" class="btn" style="width:100%; height:80px; text-align:left; cursor:text; resize:none;"></textarea>
+          </div>
+          <div style="display:flex; justify-content:flex-end; gap:10px;">
+              <button class="btn" onclick="closeEditor()">取消</button>
+              <button class="btn btn-primary" onclick="saveEvent()">儲存</button>
           </div>
       </div>
-
-      <div class="form-group">
-          <label class="form-label">名稱</label>
-          <input type="text" class="form-input" id="e-title">
-      </div>
-
-      <div class="form-grid">
-          <div class="form-group">
-              <label class="form-label">類型</label>
-              <select class="form-input" id="e-type">
-                  <option value="move">🚌 交通移動</option>
-                  <option value="food">🍱 餐飲美食</option>
-                  <option value="spot">📷 景點觀光</option>
-                  <option value="stay">🏨 住宿休息</option>
-              </select>
-          </div>
-          <div class="form-group">
-              <label class="form-label">預算 (JPY)</label>
-              <input type="number" class="form-input" id="e-cost" placeholder="0">
-              <label class="checkbox-wrapper">
-                  <input type="checkbox" class="checkbox-input" id="e-paid">
-                  <span style="font-size:12px;">已付款</span>
-              </label>
-          </div>
-      </div>
-
-      <div class="form-group">
-          <label class="form-label">待辦事項 (一行一個，例如: 線上報到)</label>
-          <textarea class="form-input" id="e-todos" rows="3" placeholder="購買門票&#10;預約餐廳"></textarea>
-      </div>
-
-      <div class="form-group">
-          <label class="form-label">詳細說明</label>
-          <textarea class="form-input" id="e-desc" rows="2"></textarea>
-      </div>
-      
-      <div class="form-group">
-          <label class="form-label">備案行程</label>
-          <input type="text" class="form-input" id="e-planb">
-      </div>
-
-      <div class="editor-actions">
-          <button class="btn" onclick="closeEditor()">取消</button>
-          <button class="btn btn-primary" onclick="saveEditor()">儲存</button>
-      </div>
-    </div>
   </div>
 
   <script>
-    // --- Data & Config ---
-    const STORAGE_KEY = 'kyushu_v19_fixed';
+    const STORAGE_KEY = 'kyushu_v21_final';
+    
     const daysMeta = [
-      {id:1, date:'12/10 (三)', city:'別府'}, {id:2, date:'12/11 (四)', city:'大分'}, 
-      {id:3, date:'12/12 (五)', city:'由布院'}, {id:4, date:'12/13 (六)', city:'浮羽'}, 
-      {id:5, date:'12/14 (日)', city:'原鶴'}, {id:6, date:'12/15 (一)', city:'博多'},
-      {id:7, date:'12/16 (二)', city:'北九州'}, {id:8, date:'12/17 (三)', city:'博多'}, 
-      {id:9, date:'12/18 (四)', city:'返程'}
+      {id:1, date:'12/10', w:'Wed', city:'別府'}, {id:2, date:'12/11', w:'Thu', city:'大分'}, 
+      {id:3, date:'12/12', w:'Fri', city:'由布院'}, {id:4, date:'12/13', w:'Sat', city:'浮羽'}, 
+      {id:5, date:'12/14', w:'Sun', city:'原鶴'}, {id:6, date:'12/15', w:'Mon', city:'博多'},
+      {id:7, date:'12/16', w:'Tue', city:'北九州'}, {id:8, date:'12/17', w:'Wed', city:'博多'}, 
+      {id:9, date:'12/18', w:'Thu', city:'返程'}
     ];
 
-    // Default Data
+    // Reference Data
+    const spotDB = {
+      "焼肉 一力": { open:"17:00-24:00 (木曜休)", tips:"煙味重，避開淺色衣物，建議先訂位" },
+      "とよ常": { open:"11:00-21:00 (火/水休)", tips:"特上天丼必點，建議11:00前排隊" },
+      "友永パン屋": { open:"08:30-17:30 (日曜休)", tips:"在地百年麵包店，只能付現，賣完提早關" },
+      "ShinShin": { open:"11:00-03:00", tips:"純情豚骨拉麵，排隊人潮多" },
+      "鶴見岳纜車": { open:"09:00-17:00", tips:"出發前務必看官網 Live Cam 確認山上天氣" },
+      "City Spa": { open:"14:00-24:00 (晨湯6:00-9:30)", tips:"頂樓露天溫泉必泡，日落與夜景皆美" },
+      "泰泉閣": { open:"叢林風呂有男女互換制", tips:"**早餐方案**，晚餐需在外面解決或買進去" },
+      "MINOU BOOKS": { open:"11:00-19:00 (火曜休)", tips:"浮羽必逛質感書店" },
+      "FUK COFFEE": { open:"08:00-20:00", tips:"飛機主題咖啡，適合拍照" },
+      "海鮮居酒屋 れん": { open:"17:00-23:00 (日曜休)", tips:"Tabelog 3.73分，別府晚餐高分備案" },
+      "Somuri": { open:"11:30-14:00 / 17:30-21:30", tips:"Tabelog 3.68分，豐後牛排，午餐CP值高" },
+      "IT750": { type:"move", desc:"TPE 12:00 -> OIT 15:00" },
+      "空港巴士": { type:"move", desc:"AirLiner 往別府北浜，車程約50分" }
+    };
+    
+    const IMG_YUFUIN = "https://images.unsplash.com/photo-1565619624098-e8c2c951a3e6?auto=format&fit=crop&w=600&q=80"; 
+    const IMG_ROPEWAY = "https://images.unsplash.com/photo-1610327743468-7089e50e9244?auto=format&fit=crop&w=600&q=80"; 
+    const IMG_BEEF = "https://images.unsplash.com/photo-1558030006-4506719866cf?auto=format&fit=crop&w=600&q=80"; 
+    
     const defaultData = {
         events: {
             d1: [
-                {id:'e1', start:'10:00', end:'12:00', title:'✈️ 桃機報到', type:'move', cost:0, paid:true, desc:'T1 虎航櫃檯', todos:[{text:'線上報到',done:false}, {text:'下載登機證',done:false}]},
-                {id:'e3', start:'16:00', end:'17:00', title:'🚌 空港巴士', type:'move', cost:1600, paid:false, desc:'往別府北浜', todos:[{text:'準備零錢',done:false}]},
-                {id:'e4', start:'17:30', end:'19:30', title:'🥩 燒肉一力', type:'food', cost:5000, paid:false, desc:'在地老店', todos:[{text:'電話訂位',done:false}]}
+                {id:'e1', start:'10:00', end:'12:00', title:'✈️ 桃機報到', type:'move', cost:0, desc:'T1 虎航櫃檯，記得線上報到', advice:'先吃漢堡王墊胃'},
+                {id:'e2', start:'12:00', end:'15:00', title:'IT750 飛行', type:'move', cost:0, desc:'PNR: B8453T'},
+                {id:'e3', start:'16:00', end:'17:00', title:'🚌 空港巴士', type:'move', cost:1600, desc:'往別府北浜', advice:'坐左邊看海！'},
+                {id:'e4', start:'17:30', end:'19:30', title:'🥩 燒肉一力', type:'food', cost:5000, desc:'在地老店，煙味重但好吃', img:IMG_BEEF},
+                {id:'e6', start:'21:00', end:'23:59', title:'🏨 西鉄リゾートイン', type:'stay', cost:0, desc:'泡湯 (開放至01:00)'}
             ],
             d2: [
-                {id:'e1', start:'09:00', end:'11:30', title:'🚠 鶴見岳纜車', type:'spot', cost:1600, paid:false, desc:'山上零度', todos:[{text:'查 Live Cam',done:false}]}
+                {id:'e1', start:'09:00', end:'11:30', title:'🚠 鶴見岳纜車', type:'spot', cost:1600, desc:'山上零度，必看 LiveCam', img:IMG_ROPEWAY, planb:'海地獄'},
+                {id:'e2', start:'11:30', end:'13:00', title:'🍤 とよ常 天丼', type:'food', cost:1200, desc:'午餐，建議11:00排隊'},
+                {id:'e3', start:'15:00', end:'17:00', title:'🏨 JR Blossom', type:'stay', cost:0, desc:'City Spa 日落溫泉'}
+            ],
+            d3: [
+                {id:'e1', start:'10:00', end:'11:00', title:'🚂 移動往由布院', type:'move', cost:1100, desc:'JR 久大本線'},
+                {id:'e2', start:'11:00', end:'14:00', title:'📷 湯之坪街道', type:'spot', cost:2000, desc:'邊吃邊逛', img:IMG_YUFUIN},
+                {id:'e3', start:'16:00', end:'18:00', title:'🏨 カントリーイン麓舎', type:'stay', cost:0, desc:'Check-in，晚餐豐盛'}
             ]
+        },
+        expert: {
+            d1: "💡 機場巴士若人多要排加班車，動作要快。",
+            d2: "💡 City Spa 頂樓風大，冬天泡湯頭要包毛巾保暖。",
+            d3: "💡 麓舎晚餐很多，中午別吃太撐。"
         }
     };
 
     let appData = {};
-    let currentDay = null;
+    let currentMobileDay = 1;
     let currentEvId = null;
-    let isPinned = false;
+    let currentDayId = null;
+    let currentFilter = 'all';
 
-    // --- Core Logic ---
+    // --- Init ---
     function init() {
         const saved = localStorage.getItem(STORAGE_KEY);
         appData = saved ? JSON.parse(saved) : JSON.parse(JSON.stringify(defaultData));
         daysMeta.forEach(d => { if(!appData.events['d'+d.id]) appData.events['d'+d.id] = []; });
-        renderAll();
+        renderMobile();
+        renderDesktopTable();
+        renderDB();
+        renderRefTables();
     }
 
-    function renderAll() {
-        renderDesktop();
-        renderMobile();
-        renderDB();
-        updateDashboard();
+    // --- Mobile Rendering ---
+    function renderMobile() {
+        const selector = document.getElementById('m-day-selector');
+        selector.innerHTML = '';
+        daysMeta.forEach(d => {
+            const isActive = d.id === currentMobileDay ? 'active' : '';
+            selector.innerHTML += `<div class="m-day-btn ${isActive}" onclick="setMobileDay(${d.id})"><div class="m-day-num">${d.date.split('/')[1].split(' ')[0]}</div><div class="m-day-txt">${d.w}</div></div>`;
+        });
+
+        const advice = appData.expert['d'+currentMobileDay] || "享受旅程，注意安全！";
+        document.getElementById('m-daily-advice').innerHTML = advice;
+
+        const list = document.getElementById('m-timeline-list');
+        list.innerHTML = '<div class="m-timeline-line"></div>';
+        
+        const events = appData.events['d'+currentMobileDay] || [];
+        events.sort((a,b) => a.start.localeCompare(b.start));
+
+        if (events.length === 0) {
+            list.innerHTML += `<div style="text-align:center; padding:40px; color:var(--text-sub);">本日尚無行程<br><button class="btn" style="margin-top:10px;" onclick="openEditor(${currentMobileDay})">+ 新增</button></div>`;
+            return;
+        }
+
+        events.forEach(ev => {
+            let icon = 'circle';
+            if(ev.type==='move') icon='directions_bus';
+            if(ev.type==='food') icon='restaurant';
+            if(ev.type==='spot') icon='photo_camera';
+            if(ev.type==='stay') icon='hotel';
+            
+            let imgHtml = '';
+            if(ev.img) imgHtml = `<div class="m-card-img has-img" style="background-image:url('${ev.img}')"><div class="m-img-badge">相片</div></div>`;
+
+            let warningHtml = '';
+            if(ev.title.includes('移動') || ev.type === 'move') warningHtml = `<div class="tag-transport-warning"><span class="material-symbols-rounded" style="font-size:12px;">warning</span> 轉乘注意</div>`;
+            
+            const typeClass = `type-${ev.type}`;
+
+            list.innerHTML += `
+            <div class="m-event-item ${typeClass}">
+                <div class="m-event-icon-box"><span class="material-symbols-rounded" style="font-size:14px;">${icon}</span></div>
+                <div class="m-event-card" onclick="openDrawer('${ev.id}', ${currentMobileDay})">
+                    ${imgHtml}
+                    <div class="m-card-body">
+                        <div class="m-card-header"><div class="m-time-badge">${ev.start} - ${ev.end}</div>${ev.planb ? '<span class="tag" style="background:#e2e8f0;color:#64748b">備案</span>' : ''}</div>
+                        <div class="m-card-title">${ev.title}</div>
+                        <div class="m-card-desc">${ev.desc}</div>
+                        ${warningHtml}
+                        <div class="m-card-footer"><div class="m-cost ${ev.paid?'paid':''}">${ev.paid ? '<span class="material-symbols-rounded" style="font-size:14px">check_circle</span>' : ''} ¥${ev.cost}</div></div>
+                    </div>
+                </div>
+            </div>`;
+        });
+        list.innerHTML += `<button class="btn" style="width:100%; justify-content:center; margin-top:10px;" onclick="openEditor(${currentMobileDay})">+ 新增行程</button>`;
     }
+
+    function setMobileDay(id) { currentMobileDay = id; renderMobile(); }
 
     // --- Desktop Render ---
-    function renderDesktop() {
-        const hRow = document.getElementById('header-row');
-        const tRow = document.getElementById('timeline-row');
-        hRow.innerHTML = '<th></th>';
-        tRow.innerHTML = `<td style="vertical-align:top; padding:20px; font-size:12px; color:var(--text-sub);">
-            <strong>24H 視覺軸</strong><br><br>
-            <span style="color:var(--color-transport)">■</span> 交通<br>
-            <span style="color:var(--color-food)">■</span> 美食<br>
-            <span style="color:var(--color-spot)">■</span> 景點<br>
-            <span style="color:var(--color-stay)">■</span> 住宿
-        </td>`;
-
+    function renderDesktopTable() {
+        const head = document.getElementById('d-header-row');
+        const body = document.getElementById('d-body-row');
+        head.innerHTML = '<th>項目</th>';
+        let bodyHtml = '<tr><td style="padding:20px; vertical-align:top;"><strong>時間軸</strong></td>';
+        daysMeta.forEach(d => { head.innerHTML += `<th>${d.date}<br><span class="text-sm">${d.city}</span></th>`; });
         daysMeta.forEach(d => {
-            hRow.innerHTML += `<th><div style="font-size:16px;font-weight:800;">${d.date}</div><div style="font-size:12px;">${d.city}</div><button class="btn" style="width:100%;margin-top:8px;justify-content:center;font-size:11px;" onclick="openEditor(${d.id})">+ 新增</button></th>`;
-            
-            let html = `<td class="day-col"><div class="timeline-container" onclick="openEditor(${d.id})">`;
-            for(let h=6; h<24; h+=2) html += `<div class="time-marker" style="top:${(h-6)*60}px">${h}:00</div>`;
-            
+            bodyHtml += `<td style="height:600px; position:relative; background:repeating-linear-gradient(white 0 59px, #f1f5f9 60px); padding:0; vertical-align:top;"><div style="height:100%; width:100%;" onclick="openEditor(${d.id})">`;
             const events = appData.events['d'+d.id] || [];
             events.forEach(ev => {
                 const [sh, sm] = ev.start.split(':').map(Number);
                 const [eh, em] = ev.end.split(':').map(Number);
                 const startMin = (sh - 6) * 60 + sm;
                 const duration = ((eh - sh) * 60) + (em - sm);
-                const height = Math.max(30, duration);
-                
-                let extraClass = '';
-                if (ev.type === 'move') extraClass = 'type-move';
-                else if (ev.type === 'food') extraClass = 'type-food';
-                else if (ev.type === 'spot') extraClass = 'type-spot';
-                else extraClass = 'type-stay';
-
-                const planBIcon = ev.planb ? `<span style="position:absolute;bottom:4px;right:4px;font-size:12px;">☔</span>` : '';
-                const paidIcon = ev.paid ? `<span class="material-symbols-rounded" style="font-size:10px; color:green;">check_circle</span>` : '';
-                
-                let todoBadge = '';
-                if (ev.todos && ev.todos.length > 0) {
-                    const doneCount = ev.todos.filter(t => t.done).length;
-                    const totalCount = ev.todos.length;
-                    todoBadge = `<div class="ev-todo-badge"><span class="material-symbols-rounded" style="font-size:10px">check_box</span> ${doneCount}/${totalCount}</div>`;
-                }
-
-                html += `<div class="event-block ${extraClass}" style="top:${startMin}px; height:${height}px;" onclick="event.stopPropagation(); openDrawer('${ev.id}', ${d.id})">
-                    <div class="ev-content">
-                        <div class="ev-header"><span class="ev-time">${ev.start}</span> ${paidIcon}</div>
-                        <div class="ev-title">${ev.title}</div>
-                        <div class="ev-bottom-row">
-                             <div class="ev-badge">¥${ev.cost}</div>
-                             ${todoBadge}
-                        </div>
-                    </div>
-                    ${planBIcon}
-                </div>`;
+                const top = startMin * 0.8;
+                const height = Math.max(40, duration * 0.8);
+                bodyHtml += `<div class="event-block type-${ev.type} d-block" style="top:${top}px; height:${height}px; left:4px; right:4px;" onclick="event.stopPropagation(); openDrawer('${ev.id}', ${d.id})">
+                    <div style="font-size:10px; font-weight:bold;">${ev.start}</div><div style="font-weight:bold; overflow:hidden;">${ev.title}</div></div>`;
             });
-            
-            html += `</div></td>`;
-            tRow.innerHTML += html;
+            bodyHtml += `</div></td>`;
         });
+        bodyHtml += '</tr>';
+        body.innerHTML = bodyHtml;
     }
 
-    // --- Mobile Render ---
-    function renderMobile() {
-        const c = document.getElementById('m-list');
-        c.innerHTML = '';
-        daysMeta.forEach(d => {
-            const events = appData.events['d'+d.id] || [];
-            events.sort((a,b)=>a.start.localeCompare(b.start));
-            
-            let html = `<div class="m-card" style="border-left:4px solid var(--primary);">
-                <div style="font-weight:800; font-size:16px; margin-bottom:12px; display:flex; justify-content:space-between;">
-                    <span>${d.date} ${d.city}</span>
-                    <button class="btn" style="padding:4px 8px; font-size:11px;" onclick="openEditor(${d.id})">+</button>
-                </div>`;
-            
-            events.forEach(ev => {
-                let todoStr = '';
-                if(ev.todos && ev.todos.length > 0) {
-                    const done = ev.todos.filter(t=>t.done).length;
-                    todoStr = `<span style="font-size:11px; background:#dcfce7; color:#166534; padding:2px 6px; border-radius:4px; margin-left:6px;">✅ ${done}/${ev.todos.length}</span>`;
-                }
-
-                html += `<div class="m-event-row" onclick="openDrawer('${ev.id}', ${d.id})">
-                    <div class="m-time-col">${ev.start}</div>
-                    <div class="m-info-col">
-                        <div class="m-title">${ev.title} ${ev.planb ? '☔' : ''}</div>
-                        <div class="m-desc">${ev.desc || ''} ${todoStr}</div>
-                    </div>
-                    <div style="font-size:12px; font-weight:600; color:${ev.paid?'#10b981':'#f97316'}">¥${ev.cost}</div>
-                </div>`;
-            });
-            html += `</div>`;
-            c.innerHTML += html;
-        });
-    }
-
-    // --- DB Render ---
+    // --- Database Render ---
     function renderDB(filter = '') {
-        const c = document.getElementById('db-list');
-        c.innerHTML = '';
+        const tbody = document.getElementById('db-tbody');
+        tbody.innerHTML = '';
         daysMeta.forEach(d => {
             const events = appData.events['d'+d.id] || [];
             events.forEach(ev => {
-                if(filter && !JSON.stringify(ev).toLowerCase().includes(filter.toLowerCase())) return;
-                c.innerHTML += `<div class="m-card" style="padding:10px; font-size:13px;">
-                    <span class="tag" style="background:#e2e8f0;">${d.date}</span> 
-                    <span class="tag" style="background:#f1f5f9;">${ev.type}</span> 
-                    <strong>${ev.title}</strong> - ${ev.desc}
-                </div>`;
+                if (currentFilter !== 'all' && ev.type !== currentFilter) return;
+                if (filter && !ev.title.includes(filter) && !ev.desc.includes(filter)) return;
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><span style="font-weight:600">${d.date}</span></td>
+                    <td class="font-mono">${ev.start} - ${ev.end}</td>
+                    <td><span class="tag-type ${ev.type}">${ev.type}</span></td>
+                    <td style="font-weight:600">${ev.title}</td>
+                    <td>${ev.desc}</td>
+                    <td class="font-mono">¥${ev.cost}</td>
+                    <td><button class="btn" style="padding:4px 8px;" onclick="openEditor(${d.id}, '${ev.id}')">編輯</button></td>
+                `;
+                tbody.appendChild(tr);
             });
+        });
+    }
+
+    function filterDb(type) {
+        currentFilter = type;
+        document.querySelectorAll('.db-filter').forEach(b => b.classList.remove('active'));
+        document.querySelector(`.db-filter[onclick="filterDb('${type}')"]`).classList.add('active');
+        renderDB();
+    }
+
+    function renderRefTables() {
+        const spotTbody = document.getElementById('ref-spot-tbody');
+        spotTbody.innerHTML = '';
+        Object.keys(spotDB).forEach(key => {
+            spotTbody.innerHTML += `<tr><td><strong>${key}</strong></td><td>${spotDB[key].open || '-'}</td><td>${spotDB[key].tips || '-'}</td></tr>`;
+        });
+        const expTbody = document.getElementById('ref-expert-tbody');
+        expTbody.innerHTML = '';
+        daysMeta.forEach(d => {
+            expTbody.innerHTML += `<tr><td><strong>${d.date}</strong></td><td>${appData.expert['d'+d.id] || '-'}</td></tr>`;
         });
     }
 
     // --- Drawer & Editor ---
     function openDrawer(evId, dayId) {
-        currentEvId = evId; currentDay = dayId;
-        const ev = appData.events['d'+dayId].find(e=>e.id===evId);
+        currentEvId = evId; currentDayId = dayId;
+        const ev = appData.events['d'+dayId].find(e => e.id === evId);
         if(!ev) return;
-
-        document.getElementById('d-title').innerText = ev.title;
-        document.getElementById('d-badge').innerText = ev.type.toUpperCase();
-        document.getElementById('d-time').innerText = `${ev.start} - ${ev.end}`;
-        document.getElementById('d-cost').innerText = `¥${ev.cost} (${ev.paid ? '已付' : '未付'})`;
-        document.getElementById('d-desc').innerText = ev.desc || '無備註';
-        document.getElementById('d-advice').innerText = ev.advice || '無特殊建議';
+        document.getElementById('d-drawer-title').innerText = ev.title;
+        document.getElementById('d-drawer-type').innerText = ev.type.toUpperCase();
+        document.getElementById('d-drawer-time').innerText = `${ev.start} - ${ev.end}`;
+        document.getElementById('d-drawer-cost').innerText = `¥${ev.cost} ${ev.paid?'(已付)':''}`;
+        document.getElementById('d-drawer-desc').innerText = ev.desc || '-';
+        document.getElementById('d-drawer-advice').innerText = appData.expert['d'+dayId] || '暫無建議';
         
-        // Render Todo List
-        const todoList = document.getElementById('d-todo-list');
-        const todoContainer = document.getElementById('d-todo-container');
-        todoList.innerHTML = '';
-        if (ev.todos && ev.todos.length > 0) {
-            todoContainer.style.display = 'block';
-            ev.todos.forEach((task, index) => {
-                todoList.innerHTML += `
-                <div class="drawer-todo-item" onclick="toggleTodo('${evId}', ${dayId}, ${index})">
-                    <input type="checkbox" class="todo-checkbox" ${task.done ? 'checked' : ''}>
-                    <span class="drawer-todo-text ${task.done ? 'done' : ''}">${task.text}</span>
-                </div>`;
-            });
-        } else {
-            todoContainer.style.display = 'none';
-        }
+        const imgCont = document.getElementById('d-drawer-img-container');
+        if(ev.img) { imgCont.style.display = 'block'; document.getElementById('d-drawer-img').src = ev.img; } else { imgCont.style.display = 'none'; }
+        
+        const pb = document.getElementById('d-drawer-planb');
+        if(ev.planb) { pb.style.display = 'block'; document.getElementById('d-drawer-planb-text').innerText = ev.planb; } else { pb.style.display = 'none'; }
 
-        const pbAlert = document.getElementById('d-plan-b-alert');
-        const pbText = document.getElementById('d-plan-b-text');
-        if(ev.planb) {
-            pbAlert.style.display = 'block';
-            pbText.innerText = ev.planb;
-        } else {
-            pbAlert.style.display = 'none';
-        }
-        pbText.style.display = 'none'; 
-
-        if(!isPinned) document.getElementById('drawer-backdrop').classList.add('active');
+        document.getElementById('drawer-backdrop').style.opacity = '1';
+        document.getElementById('drawer-backdrop').style.pointerEvents = 'auto';
         document.getElementById('detail-drawer').classList.add('active');
     }
     
-    function toggleTodo(evId, dayId, index) {
-        const ev = appData.events['d'+dayId].find(e=>e.id===evId);
-        if(ev && ev.todos && ev.todos[index]) {
-            ev.todos[index].done = !ev.todos[index].done;
-            persist();
-            renderAll();
-            openDrawer(evId, dayId);
-        }
-    }
-
-    function togglePlanBView() {
-        const el = document.getElementById('d-plan-b-text');
-        el.style.display = el.style.display === 'none' ? 'block' : 'none';
-    }
-
     function closeDrawer() {
-        document.getElementById('drawer-backdrop').classList.remove('active');
+        document.getElementById('drawer-backdrop').style.opacity = '0';
+        document.getElementById('drawer-backdrop').style.pointerEvents = 'none';
         document.getElementById('detail-drawer').classList.remove('active');
-        if(isPinned) togglePin();
-    }
-
-    function togglePin() {
-        isPinned = !isPinned;
-        document.body.classList.toggle('drawer-pinned', isPinned);
     }
 
     function openEditor(dayId, evId=null) {
-        currentDay = dayId; currentEvId = evId;
-        document.getElementById('editor-modal').classList.add('active');
-        
+        currentDayId = dayId; currentEvId = evId;
+        const modal = document.getElementById('editor-overlay');
+        modal.style.display = 'flex';
+        // Reset
+        document.getElementById('e-start').value = '10:00'; document.getElementById('e-end').value = '11:00';
+        document.getElementById('e-title').value = ''; document.getElementById('e-cost').value = '';
+        document.getElementById('e-desc').value = ''; document.getElementById('e-img').value = ''; document.getElementById('e-planb').value = '';
         if(evId) {
-            // Load existing
-            const ev = appData.events['d'+dayId].find(e=>e.id===evId);
-            document.getElementById('e-start').value = ev.start;
-            document.getElementById('e-end').value = ev.end;
-            document.getElementById('e-title').value = ev.title;
-            document.getElementById('e-cost').value = ev.cost;
-            document.getElementById('e-type').value = ev.type;
-            document.getElementById('e-paid').checked = ev.paid;
-            document.getElementById('e-desc').value = ev.desc;
-            document.getElementById('e-planb').value = ev.planb || '';
-            const todoText = ev.todos ? ev.todos.map(t => t.text).join('\n') : '';
-            document.getElementById('e-todos').value = todoText;
-        } else {
-            // New
-            document.getElementById('e-start').value = '10:00';
-            document.getElementById('e-end').value = '11:00';
-            document.getElementById('e-title').value = '';
-            document.getElementById('e-cost').value = '';
-            document.getElementById('e-desc').value = '';
-            document.getElementById('e-planb').value = '';
-            document.getElementById('e-todos').value = '';
-            document.getElementById('e-paid').checked = false;
+             const ev = appData.events['d'+dayId].find(e => e.id === evId);
+             document.getElementById('e-start').value = ev.start; document.getElementById('e-end').value = ev.end;
+             document.getElementById('e-title').value = ev.title; document.getElementById('e-cost').value = ev.cost;
+             document.getElementById('e-desc').value = ev.desc; document.getElementById('e-img').value = ev.img || '';
+             document.getElementById('e-planb').value = ev.planb || '';
         }
     }
-
-    function saveEditor() {
+    function closeEditor() { document.getElementById('editor-overlay').style.display = 'none'; }
+    
+    function saveEvent() {
         const title = document.getElementById('e-title').value;
         if(!title) return alert('請輸入名稱');
-        
-        const todoRaw = document.getElementById('e-todos').value;
-        const newTodoTexts = todoRaw.split('\n').map(t => t.trim()).filter(t => t !== '');
-        
-        let finalTodos = [];
-        
-        if(currentEvId) {
-            const oldEv = appData.events['d'+currentDay].find(e=>e.id===currentEvId);
-            finalTodos = newTodoTexts.map(text => {
-                const existing = oldEv.todos ? oldEv.todos.find(t => t.text === text) : null;
-                return existing ? existing : { text: text, done: false };
-            });
-        } else {
-            finalTodos = newTodoTexts.map(text => ({ text: text, done: false }));
-        }
-
         const newEv = {
             id: currentEvId || 'e'+Date.now(),
-            start: document.getElementById('e-start').value,
-            end: document.getElementById('e-end').value,
-            title: title,
-            type: document.getElementById('e-type').value,
-            cost: parseInt(document.getElementById('e-cost').value) || 0,
-            paid: document.getElementById('e-paid').checked,
-            planb: document.getElementById('e-planb').value,
-            desc: document.getElementById('e-desc').value,
-            todos: finalTodos
+            start: document.getElementById('e-start').value, end: document.getElementById('e-end').value,
+            title: title, type: document.getElementById('e-type').value,
+            cost: document.getElementById('e-cost').value, desc: document.getElementById('e-desc').value,
+            img: document.getElementById('e-img').value, planb: document.getElementById('e-planb').value
         };
-
+        if(!appData.events['d'+currentDayId]) appData.events['d'+currentDayId] = [];
         if(currentEvId) {
-            const idx = appData.events['d'+currentDay].findIndex(e=>e.id===currentEvId);
-            appData.events['d'+currentDay][idx] = newEv;
-        } else {
-            appData.events['d'+currentDay].push(newEv);
-        }
-        
-        persist();
-        closeEditor();
-        renderAll();
-        if(currentEvId && document.getElementById('detail-drawer').classList.contains('active')) {
-             openDrawer(currentEvId, currentDay);
-        }
+            const idx = appData.events['d'+currentDayId].findIndex(e=>e.id===currentEvId);
+            appData.events['d'+currentDayId][idx] = newEv;
+        } else { appData.events['d'+currentDayId].push(newEv); }
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
+        closeEditor(); renderMobile(); renderDesktopTable(); renderDB();
     }
-
     function deleteEvent() {
         if(confirm('刪除？')) {
-            appData.events['d'+currentDay] = appData.events['d'+currentDay].filter(e=>e.id!==currentEvId);
-            persist(); closeDrawer(); renderAll();
+            appData.events['d'+currentDayId] = appData.events['d'+currentDayId].filter(e=>e.id!==currentEvId);
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
+            closeDrawer(); renderMobile(); renderDesktopTable(); renderDB();
         }
     }
+    function openMap() { window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(document.getElementById('d-drawer-title').innerText)}`, '_blank'); }
 
-    function closeEditor() { document.getElementById('editor-modal').classList.remove('active'); }
-
-    // --- Utils ---
-    function updateDashboard() {
-        let total = 0, pending = 0;
-        Object.values(appData.events).forEach(evs => evs.forEach(e => {
-            total += (e.cost||0);
-            if(!e.paid) pending += (e.cost||0);
-        }));
-        document.getElementById('dash-total').innerText = `¥${total.toLocaleString()}`;
-        document.getElementById('dash-pending').innerText = `¥${pending.toLocaleString()}`;
-    }
-
-    function enterApp() { document.getElementById('portal').classList.add('hidden'); switchTab('desktop'); }
-    
+    // --- Navigation ---
     function switchTab(tab) {
-        ['desktop','mobile','db'].forEach(t => document.getElementById(t+'-view').style.display = 'none');
+        document.getElementById('portal').classList.add('hidden');
+        document.getElementById('mobile-view').style.display = 'none';
+        document.getElementById('desktop-view').style.display = 'none';
+        document.getElementById('db-view').style.display = 'none';
+        
         document.getElementById(tab+'-view').style.display = 'block';
         
-        document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+        if(tab === 'mobile') document.querySelectorAll('.nav-item')[0].classList.add('active');
+        if(tab === 'desktop') document.querySelectorAll('.nav-item')[1].classList.add('active');
+        if(tab === 'db') document.querySelectorAll('.nav-item')[2].classList.add('active');
     }
-
-    function persist() { localStorage.setItem(STORAGE_KEY, JSON.stringify(appData)); }
     
-    // Export/Import
     function exportData() {
         const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appData));
-        const node = document.createElement('a');
-        node.setAttribute("href", dataStr);
-        node.setAttribute("download", "kyushu_plan.json");
-        document.body.appendChild(node);
-        node.click();
-        node.remove();
+        const node = document.createElement('a'); node.setAttribute("href", dataStr);
+        node.setAttribute("download", "kyushu_plan_v21.json");
+        document.body.appendChild(node); node.click(); node.remove();
     }
-    
     function importData() { document.getElementById('import-file').click(); }
     function processImport(input) {
-        const file = input.files[0];
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            appData = JSON.parse(e.target.result);
-            persist();
-            renderAll();
-            alert('行程匯入成功！');
-        };
+        const file = input.files[0]; const reader = new FileReader();
+        reader.onload = (e) => { appData = JSON.parse(e.target.result); localStorage.setItem(STORAGE_KEY, JSON.stringify(appData)); location.reload(); };
         reader.readAsText(file);
     }
 
