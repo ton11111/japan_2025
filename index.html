@@ -2,7 +2,7 @@
 <html lang="zh-Hant">
 <head>
   <meta charset="UTF-8" />
-  <title>2025 九州旅行指揮中心 V15</title>
+  <title>2025 九州旅行指揮中心 V16</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
   <!-- Google Fonts & Icons -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
@@ -96,6 +96,15 @@
     .event-block:hover { transform: scale(1.02) translateX(2px); z-index: 50; box-shadow: 0 8px 20px rgba(0,0,0,0.1); }
     .ev-time { font-size: 10px; font-weight: 700; opacity: 0.8; margin-bottom: 2px; font-family: 'JetBrains Mono'; }
     .ev-title { font-weight: 600; line-height: 1.3; font-size: 13px; }
+    /* New Smart Tag in Timeline */
+    .ev-smart-tag {
+        font-size: 10px; font-weight: 700; 
+        background: #fef08a; color: #854d0e; 
+        padding: 1px 6px; border-radius: 4px; 
+        display: inline-block; margin-top: 4px;
+        border: 1px solid #fde047;
+        max-width: fit-content;
+    }
     .ev-cost { position: absolute; top: 6px; right: 6px; font-size: 10px; font-weight: 700; background: rgba(255,255,255,0.7); padding: 1px 5px; border-radius: 99px; }
     
     .type-move { background: var(--evt-move); border-color: var(--evt-move-border); color: var(--evt-move-text); }
@@ -150,7 +159,7 @@
   <!-- Portal -->
   <div id="portal">
     <h1 style="font-size:32px; font-weight:800; margin-bottom:10px;">2025 九州指揮中心</h1>
-    <div style="font-size:14px; opacity:0.8; margin-bottom:40px;">V15 實戰資料增強版：完整航班、巴士、備案、營業時間</div>
+    <div style="font-size:14px; opacity:0.8; margin-bottom:40px;">V16 溫泉情報 & 直觀備註版</div>
     <div>
       <div class="portal-card" onclick="enterApp('mobile')">
         <span class="material-symbols-rounded" style="font-size:40px; margin-bottom:10px;">smartphone</span>
@@ -195,6 +204,15 @@
             <div class="ctx-header"><span class="material-symbols-rounded">school</span> 老師傅盤點</div>
             <div class="ctx-content" id="drawer-expert"></div>
         </div>
+        
+        <!-- Onsen Intel (New!) -->
+        <div id="drawer-onsen-container" style="display:none; margin-bottom:16px;">
+            <div class="ctx-card" style="background:#f3e8ff; border-color:#d8b4fe; color:#6b21a8;">
+                <div class="ctx-header" style="color:#7e22ce;"><span class="material-symbols-rounded">hot_tub</span> 溫泉/衛浴情報</div>
+                <div class="ctx-content" id="drawer-onsen"></div>
+            </div>
+        </div>
+
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin-bottom:16px;">
             <div class="ctx-card ctx-weather" style="margin-bottom:0;">
                 <span class="material-symbols-rounded" style="font-size:32px; color:#86198f">thermostat</span>
@@ -309,109 +327,82 @@
           <div class="form-group" style="flex:1;"><label class="form-label">類型</label><select class="form-select" id="edit-type"><option value="move">🚗 交通</option><option value="food">🍜 美食</option><option value="spot">🏞️ 景點</option><option value="stay">🏨 住宿</option></select></div>
           <div class="form-group" style="flex:1;"><label class="form-label">預算/人</label><input type="number" class="form-input" id="edit-cost"></div>
       </div>
-      <div class="form-group"><label class="form-label">備註</label><textarea class="form-input" id="edit-desc" rows="2"></textarea></div>
+      <div class="form-group"><label class="form-label">直觀備註 (顯示在時間軸上)</label><input type="text" class="form-input" id="edit-note" placeholder="例如: 坐左側、只收現金"></div>
+      <div class="form-group"><label class="form-label">詳細備註</label><textarea class="form-input" id="edit-desc" rows="2"></textarea></div>
       
       <!-- New Editor Fields -->
       <div class="form-group"><label class="form-label">老師傅建議</label><textarea class="form-input" id="edit-advice" rows="2" style="background:#f0f9ff;"></textarea></div>
-      <div style="display:flex; gap:10px;">
-          <div class="form-group" style="flex:1;"><label class="form-label">體感溫度</label><input type="text" class="form-input" id="edit-weather"></div>
-          <div class="form-group" style="flex:1;"><label class="form-label">穿搭建議</label><input type="text" class="form-input" id="edit-wear"></div>
-      </div>
-
+      
       <div class="editor-actions"><button class="btn" onclick="closeEditor()">取消</button><button class="btn btn-primary" onclick="saveEvent()">儲存</button></div>
     </div>
   </div>
 
   <script>
-    const STORAGE_KEY = 'kyushu_v15_final_data';
+    const STORAGE_KEY = 'kyushu_v16_onsen';
     const daysMeta = [
       {id:1, date:'12/10', w:'三', city:'別府'}, {id:2, date:'12/11', w:'四', city:'大分'}, {id:3, date:'12/12', w:'五', city:'由布院'},
       {id:4, date:'12/13', w:'六', city:'浮羽'}, {id:5, date:'12/14', w:'日', city:'原鶴'}, {id:6, date:'12/15', w:'一', city:'博多'},
       {id:7, date:'12/16', w:'二', city:'北九州'}, {id:8, date:'12/17', w:'三', city:'博多'}, {id:9, date:'12/18', w:'四', city:'返程'}
     ];
 
-    // Updated DB with V15 details
     const spotDB = {
-      "焼肉 一力": { open:"17:00-24:00 (木曜休)", tips:"煙味重，避開淺色衣物，建議先訂位。Tabelog 3.86分" },
-      "とよ常": { open:"11:00-21:00 (火/水休)", tips:"特上天丼必點，建議11:00前排隊。Tabelog 高分名店" },
-      "友永パン屋": { open:"08:30-17:30 (日曜休)", tips:"在地百年麵包店，只能付現，賣完提早關。Tabelog 3.59分" },
+      "焼肉 一力": { open:"17:00-24:00 (木曜休)", tips:"煙味重，避開淺色衣物，建議先訂位" },
+      "とよ常": { open:"11:00-21:00 (火/水休)", tips:"特上天丼必點，建議11:00前排隊" },
+      "友永パン屋": { open:"08:30-17:30 (日曜休)", tips:"在地百年麵包店，只能付現，賣完提早關" },
       "ShinShin": { open:"11:00-03:00", tips:"純情豚骨拉麵，排隊人潮多" },
-      "鶴見岳纜車": { open:"09:00-17:00", tips:"出發前務必看官網 Live Cam 確認山上天氣。霧冰季:12月-3月" },
       "City Spa": { open:"14:00-24:00 (晨湯6:00-9:30)", tips:"頂樓露天溫泉必泡，日落與夜景皆美" },
       "西鉄リゾートイン別府": { open:"大浴場 15:00-25:00 / 05:00-09:30", tips:"早晨泡湯後可去買麵包" },
       "泰泉閣": { open:"叢林風呂有男女互換制", tips:"**早餐方案**，晚餐需在外面解決或買進去" },
       "MINOU BOOKS": { open:"11:00-19:00 (火曜休)", tips:"浮羽必逛質感書店" },
       "FUK COFFEE": { open:"08:00-20:00", tips:"飛機主題咖啡，適合拍照" },
       "海鮮居酒屋 れん": { open:"17:00-23:00 (日曜休)", tips:"Tabelog 3.73分，別府晚餐高分備案，生魚片新鮮" },
-      "Somuri": { open:"11:30-14:00 / 17:30-21:30", tips:"Tabelog 3.68分，豐後牛排，午餐CP值高，晚餐適合慶祝" },
-      "IT750": { type:"move", desc:"TPE 12:00 -> OIT 15:00" },
-      "空港巴士": { type:"move", desc:"AirLiner 往別府北浜，車程約50分" }
+      "Somuri": { open:"11:30-14:00 / 17:30-21:30", tips:"Tabelog 3.68分，豐後牛排，午餐CP值高，晚餐適合慶祝" }
     };
 
     const defaultData = {
         events: {
             d1: [
-                {id:'e1', start:'10:00', end:'12:00', title:'桃機報到', type:'move', cost:0, desc:'T1 虎航櫃檯', 
-                 advice:'這時間人潮多，建議先線上報到，托運完去 B1 吃個漢堡王墊胃，機上餐通常吃不飽。', weather:'20°C (TPE)', wear:'洋蔥式穿搭 (日本室內熱)'},
-                {id:'e2', start:'12:00', end:'15:00', title:'IT750 飛行', type:'move', cost:0, desc:'TPE -> OIT', 
-                 advice:'大分機場很小，下飛機後動線單純，不用緊張。', weather:'機艙乾燥', wear:'舒適寬鬆'},
-                {id:'e3', start:'16:00', end:'17:00', title:'空港巴士 AirLiner', type:'move', cost:1600, desc:'往「別府北浜 (Beppu Kitahama)」', 
-                 advice:'★關鍵：上車坐左邊！沿途可以看到美麗的別府灣海景。車上有暖氣，外套可以脫掉。', weather:'8°C 海風', wear:'防風外套'},
-                {id:'e4', start:'17:30', end:'19:30', title:'焼肉 一力', type:'food', cost:5000, desc:'在地老店，煙味重但肉質極佳', 
-                 advice:'這家是煙燻地獄！千萬不要穿毛衣或難洗的外套進去。備案：海鮮居酒屋 Ren (Tabelog 3.73)。', weather:'5°C 寒冷', wear:'可機洗的一般衣物'},
-                {id:'e5', start:'20:00', end:'21:00', title:'超市採買', type:'spot', cost:1000, desc:'Youme Town', 
-                 advice:'因為明天飯店沒早餐，今晚一定要先買好麵包、優格、牛奶。日本牛奶隨便買都好喝。', weather:'5°C', wear:'保暖'},
-                {id:'e6', start:'21:00', end:'23:59', title:'西鉄リゾートイン', type:'stay', cost:0, desc:'泡湯', 
-                 advice:'大浴場有露天池，別府的泉質很好，第一晚好好泡一下消除搭機疲勞。', weather:'室內溫暖', wear:'飯店浴衣'}
+                {id:'e1', start:'10:00', end:'12:00', title:'桃機報到', type:'move', cost:0, note:'先線上報到', desc:'T1 虎航櫃檯', advice:'這時間人潮多，建議先線上報到，托運完去 B1 吃個漢堡王墊胃。', weather:'20°C', wear:'洋蔥式'},
+                {id:'e2', start:'12:00', end:'15:00', title:'IT750 台北→大分', type:'move', cost:0, note:'PNR: B8453T', desc:'Tigerlight', advice:'大分機場很小，下飛機後動線單純。Tigerlight 方案留意手提行李 10kg 限制。', weather:'機艙乾', wear:'舒適'},
+                {id:'e3', start:'16:00', end:'17:00', title:'空港巴士 AirLiner', type:'move', cost:1600, note:'坐左側看海', desc:'往「別府北浜」', advice:'上車坐左邊！車上有暖氣，外套可以脫掉。', weather:'8°C 風', wear:'防風'},
+                {id:'e4', start:'17:30', end:'19:30', title:'焼肉 一力', type:'food', cost:5000, note:'煙味重/備案Ren', desc:'在地老店', advice:'這家是煙燻地獄！千萬不要穿毛衣或難洗的外套進去。', weather:'5°C', wear:'可機洗衣物'},
+                {id:'e5', start:'20:00', end:'21:00', title:'超市採買', type:'spot', cost:1000, note:'買隔日早餐', desc:'Youme Town', advice:'因為明天飯店沒早餐，今晚一定要先買好麵包、優格、牛奶。', weather:'5°C', wear:'保暖'},
+                {id:'e6', start:'21:00', end:'23:59', title:'西鉄リゾートイン', type:'stay', cost:0, note:'大浴場~01:00', desc:'泡湯', onsen:'大浴場 (含露天) 15:00-01:00 / 05:00-09:30。泉質單純泉。', advice:'大浴場有露天池，別府的泉質很好，第一晚好好泡一下消除搭機疲勞。', weather:'室內', wear:'浴衣'}
             ],
             d2: [
-                {id:'e0', start:'08:00', end:'08:30', title:'早餐自理', type:'food', cost:500, desc:'房內吃昨晚買的，或衝友永麵包屋(8:30開)'},
-                {id:'e1', start:'09:00', end:'11:30', title:'鶴見岳纜車', type:'spot', cost:1600, desc:'山上散步', 
-                 advice:'★必看官網 Live Camera！如果山上白茫茫什麼都看不到，就果斷放棄改去地獄溫泉或海濱砂湯。', weather:'-2°C 強風', wear:'毛帽、手套、羽絨衣'},
-                {id:'e2', start:'11:30', end:'13:00', title:'とよ常', type:'food', cost:1200, desc:'午餐天丼', 
-                 advice:'剛下山身體冷，吃熱騰騰的天丼最爽。建議11:00開門前就去排。如果排太長，去別府車站分店也可以。', weather:'9°C', wear:'室內暖氣強'},
-                {id:'e3', start:'15:00', end:'17:00', title:'JR Blossom', type:'stay', cost:0, desc:'Check-in', 
-                 advice:'這間重點是頂樓 City Spa。建議日落前(16:30)上去泡一次，看著別府灣夕陽變夜景。', weather:'室內', wear:'輕鬆'},
-                {id:'e4', start:'18:00', end:'20:00', title:'Somuri 牛排', type:'food', cost:6000, desc:'豐後牛', 
-                 advice:'豐後牛油花豐富，建議點 Medium-Rare。這餐比較貴，慢慢享受。', weather:'6°C', wear:'休閒正式'}
+                {id:'e0', start:'08:00', end:'08:30', title:'早餐自理', type:'food', cost:500, note:'房內吃/友永麵包', desc:'8:30開'},
+                {id:'e1', start:'09:00', end:'11:30', title:'鶴見岳纜車', type:'spot', cost:1600, note:'必看LiveCam', desc:'山上散步', advice:'★必看官網 Live Camera！如果山上白茫茫什麼都看不到，就果斷放棄。', weather:'-2°C 強風', wear:'毛帽手套'},
+                {id:'e2', start:'11:30', end:'13:00', title:'とよ常', type:'food', cost:1200, note:'11:00前排隊', desc:'午餐天丼', advice:'剛下山身體冷，吃熱騰騰的天丼最爽。', weather:'9°C', wear:'室內'},
+                {id:'e3', start:'15:00', end:'17:00', title:'JR Blossom', type:'stay', cost:0, note:'頂樓露天湯', desc:'Check-in', onsen:'City Spa Tenku (頂樓無邊際) 14:00-24:00 / 06:00-09:30。住客免費。', advice:'建議日落前(16:30)上去泡一次，看著別府灣夕陽變夜景。', weather:'室內', wear:'輕鬆'},
+                {id:'e4', start:'18:00', end:'20:00', title:'Somuri 牛排', type:'food', cost:6000, note:'豐後牛', desc:'晚餐', advice:'豐後牛油花豐富，建議點 Medium-Rare。', weather:'6°C', wear:'休閒正式'}
             ],
             d3: [
-                {id:'e1', start:'10:00', end:'11:00', title:'移動往由布院', type:'move', cost:1100, desc:'JR/Bus', 
-                 advice:'如果是搭由布院之森，記得去餐車買個 B-Speak 蛋糕捲（車上限定切片裝）。', weather:'車內暖', wear:'好穿脫'}, 
-                {id:'e2', start:'11:00', end:'14:00', title:'湯之坪街道', type:'spot', cost:2000, desc:'散策', 
-                 advice:'這條路人很多，路面平坦。建議邊走邊吃可樂餅、金賞炸雞。不要在這邊買太重的伴手禮，提著很累。', weather:'5°C 山區冷', wear:'好走的鞋、圍巾'},
-                {id:'e4', start:'16:00', end:'18:00', title:'カントリーイン麓舎', type:'stay', cost:0, desc:'Check-in', 
-                 advice:'這家晚餐非常豐盛，中午真的不要吃太飽，不然晚上會後悔。', weather:'室內', wear:'浴衣'}
+                {id:'e1', start:'10:00', end:'11:00', title:'移動往由布院', type:'move', cost:1100, note:'JR/Bus', desc:'久大本線'},
+                {id:'e2', start:'11:00', end:'14:00', title:'湯之坪街道', type:'spot', cost:2000, note:'邊吃邊逛', desc:'可樂餅/蛋糕捲'},
+                {id:'e3', start:'14:00', end:'15:30', title:'茶房 天井棧敷', type:'food', cost:1000, note:'金鱗湖旁', desc:'老屋咖啡'},
+                {id:'e4', start:'16:00', end:'18:00', title:'カントリーイン麓舎', type:'stay', cost:0, note:'貸切溫泉', desc:'Check-in', onsen:'館內有貸切風呂 (私人湯屋)，可自由使用。', advice:'晚餐非常豐盛，中午不要吃太撐。'}
             ],
             d4: [
-                {id:'e2', start:'12:30', end:'16:00', title:'浮羽白壁散策', type:'spot', cost:500, desc:'租單車', 
-                 advice:'騎腳踏車風會灌進袖口，記得戴手套。這裡遊客少，很適合拍照。', weather:'7°C 有風', wear:'手套、防風外套'}, 
-                {id:'e3', start:'17:00', end:'22:00', title:'Hostel Farolito', type:'stay', cost:0, desc:'入住', 
-                 advice:'古民家改建，晚上可能有點透風，怕冷的話多要條毯子。', weather:'3°C 夜晚冷', wear:'保暖睡衣'}
+                {id:'e2', start:'12:30', end:'16:00', title:'浮羽白壁散策', type:'spot', cost:500, note:'17:00還車', desc:'租單車'},
+                {id:'e3', start:'17:00', end:'22:00', title:'Hostel Farolito', type:'stay', cost:0, note:'共用衛浴', desc:'入住', onsen:'無溫泉 (共用淋浴間)。建議去附近的筑後川溫泉或原鶴溫泉日歸湯。', advice:'古民家改建，晚上可能透風，注意保暖。'}
             ],
             d5: [
-                {id:'e1', start:'14:00', end:'17:00', title:'泰泉閣', type:'stay', cost:0, desc:'叢林風呂', 
-                 advice:'這裡的溫泉是雙重美肌湯，泡完皮膚會很滑。叢林風呂很像泰山電影場景，很有趣。', weather:'溫暖', wear:'浴衣'},
-                {id:'e2', start:'17:30', end:'19:00', title:'晚餐自理', type:'food', cost:2000, desc:'重要！', 
-                 advice:'因為方案只有早餐，附近晚上全黑沒店開。一定要在「杷木」巴士站或道之驛買好便當帶進去。', weather:'-', wear:'-'}
+                {id:'e1', start:'14:00', end:'17:00', title:'泰泉閣', type:'stay', cost:0, note:'叢林風呂', desc:'Check-in', onsen:'叢林風呂 (男女日替)、雙重美肌湯。24H開放 (清掃時間除外)。', advice:'叢林風呂很像泰山電影場景，很有趣。'},
+                {id:'e2', start:'17:30', end:'19:00', title:'晚餐自理', type:'food', cost:2000, note:'重要！', desc:'方案僅含早', advice:'附近晚上全黑沒店開。一定要在「杷木」或道之驛買好便當帶進去。'}
             ],
             d6: [
-                {id:'e1', start:'10:00', end:'11:30', title:'移動往博多', type:'move', cost:1500, desc:'巴士', 
-                 advice:'回到大城市了！先把行李寄放在飯店，然後一身輕去逛天神。', weather:'10°C', wear:'都會風格'},
-                {id:'e3', start:'20:00', end:'22:00', title:'中洲屋台', type:'spot', cost:2000, desc:'體驗', 
-                 advice:'屋台冬天坐著腳會很冷！建議穿厚褲子。點個關東煮、拉麵就好，主要是體驗氣氛。', weather:'4°C 河邊風大', wear:'厚褲子、羽絨衣'}
+                {id:'e1', start:'10:00', end:'11:30', title:'移動往博多', type:'move', cost:1500, note:'約60分', desc:'巴士'},
+                {id:'e3', start:'20:00', end:'22:00', title:'中洲屋台', type:'spot', cost:2000, note:'有標價再進', desc:'體驗', advice:'屋台冬天坐著腳會很冷！穿厚褲子。'}
             ],
             d7: [
-                {id:'e2', start:'12:00', end:'13:30', title:'門司港燒咖哩', type:'food', cost:1200, desc:'午餐', 
-                 advice:'門司港海風超級大！體感溫度會比博多低3-5度，帽子一定要戴好。', weather:'5°C 強海風', wear:'防風帽、大衣'}
+                {id:'e2', start:'12:00', end:'13:30', title:'門司港燒咖哩', type:'food', cost:1200, note:'海風大', desc:'Bear Fruits'}
             ],
             d8: [
-                {id:'e3', start:'15:00', end:'19:00', title:'最後採買', type:'spot', cost:10000, desc:'大國/Uniqlo', 
-                 advice:'大國藥妝通常比松本清便宜。博多站的阪急百貨B1有賣「努努雞」，是冷著吃的炸雞，很適合當下酒菜。', weather:'室內熱', wear:'薄長袖+厚外套'}
+                {id:'e3', start:'15:00', end:'19:00', title:'最後採買', type:'spot', cost:10000, note:'藥妝/Uniqlo', desc:'大國藥妝'}
             ],
             d9: [
-                {id:'e1', start:'08:30', end:'09:00', title:'前往機場', type:'move', cost:260, desc:'地鐵', 
-                 advice:'福岡機場安檢最近非常嚴格，隊伍排很長。雖然機場離市區近，但還是請提早2.5小時到。', weather:'-', wear:'舒適'}
+                {id:'e1', start:'08:30', end:'09:00', title:'前往機場', type:'move', cost:260, note:'預留2.5hr', desc:'地鐵'},
+                {id:'e3', start:'10:55', end:'12:40', title:'IT241 福岡→台北', type:'move', cost:0, note:'PNR: B8453T', desc:'Tigerlight'}
             ]
         },
         core: { d1: "抵達別府。飯店無早餐，建議今晚先去超商買好。", d2: "City Spa 必泡。午餐天丼排隊。", d3: "由布院散策，住麓舎。", d4: "浮羽騎車，注意保暖。", d5: "原鶴晚餐自理(重要)。", d6: "博多屋台。", d7: "門司港海風大。", d8: "採買日。", d9: "早點去機場。" },
@@ -462,6 +453,14 @@
             document.getElementById('drawer-tips-container').style.display = 'none';
         }
 
+        // New: Onsen Info
+        if(ev.type === 'stay' || ev.onsen) {
+            document.getElementById('drawer-onsen-container').style.display = 'block';
+            document.getElementById('drawer-onsen').innerText = ev.onsen || (ev.title.includes('Mars') ? '房內衛浴 (無大浴場)' : '尚無資料');
+        } else {
+            document.getElementById('drawer-onsen-container').style.display = 'none';
+        }
+
         if(!isPinned) document.getElementById('drawer-backdrop').classList.add('active');
         document.getElementById('detail-drawer').classList.add('active');
     }
@@ -510,6 +509,7 @@
         document.getElementById('edit-end').value = '11:00';
         document.getElementById('edit-title').value = '';
         document.getElementById('edit-cost').value = '';
+        document.getElementById('edit-note').value = '';
         document.getElementById('edit-desc').value = '';
         document.getElementById('edit-advice').value = '';
         document.getElementById('edit-weather').value = '';
@@ -525,6 +525,7 @@
         document.getElementById('edit-title').value = ev.title;
         document.getElementById('edit-type').value = ev.type;
         document.getElementById('edit-cost').value = ev.cost || '';
+        document.getElementById('edit-note').value = ev.note || '';
         document.getElementById('edit-desc').value = ev.desc || '';
         document.getElementById('edit-advice').value = ev.advice || '';
         document.getElementById('edit-weather').value = ev.weather || '';
@@ -542,6 +543,7 @@
             title: title,
             type: document.getElementById('edit-type').value,
             cost: parseInt(document.getElementById('edit-cost').value) || 0,
+            note: document.getElementById('edit-note').value,
             desc: document.getElementById('edit-desc').value,
             advice: document.getElementById('edit-advice').value,
             weather: document.getElementById('edit-weather').value,
@@ -597,6 +599,7 @@
                 tHtml += `<div class="event-block type-${ev.type}" style="top:${top}px; height:${height}px;" onclick="event.stopPropagation(); openDrawer('${ev.id}', ${d.id})">
                     <span class="ev-time">${ev.start}-${ev.end}</span>
                     <span class="ev-title">${ev.title}</span>
+                    ${ev.note ? `<span class="ev-smart-tag">${ev.note}</span>` : ''}
                     ${ev.cost > 0 ? `<span class="ev-cost">¥${ev.cost}</span>` : ''}
                 </div>`;
             });
@@ -619,7 +622,7 @@
                     <div class="m-time-col">${e.start}<br>${e.end}</div>
                     <div class="m-info-col">
                         <div class="m-title">${e.title}</div>
-                        <div class="m-desc">${e.advice || e.desc || '無備註'}</div>
+                        <div class="m-desc">${e.note ? `[${e.note}] ` : ''}${e.desc || '無備註'}</div>
                     </div>
                 </div>`;
             });
