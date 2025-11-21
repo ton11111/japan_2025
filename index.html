@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <title>2025 九州行程總覽 Pro Max</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <!-- 引入 Google Fonts icon -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+  <style>
+    :root {
+      --primary: #2563eb;
+      --bg-body: #f1f5f9;
+      --bg-card: #ffffff;
+      --text-main: #0f172a;
+      --text-sub: #64748b;
+    }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans TC", sans-serif;
+      background: var(--bg-body);
+      margin: 0;
+      padding: 0;
+      color: var(--text-main);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* --- 1. 入口選擇頁 (Portal) --- */
+    #portal-screen {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+      z-index: 9999;
+      display: flex; flex-direction: column; justify-content: center; align-items: center;
+      color: white; text-align: center;
+      padding: 20px;
+      transition: opacity 0.4s ease, transform 0.4s ease;
+    }
+    #portal-screen.hidden { opacity: 0; pointer-events: none; transform: scale(1.1); }
+    .portal-title { font-size: 24px; font-weight: 700; margin-bottom: 8px; letter-spacing: 1px; }
+    .portal-sub { font-size: 14px; color: #94a3b8; margin-bottom: 40px; }
+    .portal-cards { display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; }
+    .mode-card {
+      background: rgba(255,255,255,0.1);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 20px;
+      padding: 30px 20px;
+      width: 160px;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex; flex-direction: column; align-items: center; gap: 15px;
+    }
+    .mode-card:hover { background: rgba(255,255,255,0.2); transform: translateY(-5px); }
+    .mode-card span { font-size: 40px; color: #38bdf8; }
+    .mode-name { font-weight: 600; font-size: 16px; }
+    .mode-desc { font-size: 12px; color: #cbd5e1; margin-top: 4px; }
+
+    /* --- 2. Desktop 視圖 (保留原本的表格樣式) --- */
+    #desktop-view {
+      display: none; /* 預設隱藏，選了才開 */
+      max-width: 1400px; margin: 20px auto;
+      background: var(--bg-card); border-radius: 20px; padding: 24px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+      padding-bottom: 100px;
+    }
+    #desktop-view.active { display: block; animation: fadeIn 0.5s; }
+
+    /* 復用之前的 Table CSS */
+    .header-group { border-bottom: 1px solid #e2e8f0; padding-bottom: 20px; margin-bottom: 20px; position: relative; }
+    h1 { margin: 0; font-size: 24px; }
+    .controls { position: absolute; right: 0; top: 0; display: flex; gap: 12px; }
+    .btn-action { background: #eff6ff; color: #2563eb; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; display: flex; align-items: center; gap: 4px; }
+    .btn-action:hover { background: #dbeafe; }
+
+    .table-container { overflow: auto; border: 1px solid #e2e8f0; border-radius: 12px; max-height: 75vh; position: relative; }
+    table { width: 100%; border-collapse: separate; border-spacing: 0; min-width: 1800px; }
+    th, td { padding: 12px; border-bottom: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0; vertical-align: top; background: #fff; }
+    thead th { position: sticky; top: 0; background: #0f172a; color: white; z-index: 20; }
+    tbody th, tbody td:first-child { position: sticky; left: 0; background: #f8fafc; z-index: 10; border-right: 2px solid #cbd5e1; font-weight: 600; color: #475569; width: 120px; }
+    thead th:first-child { z-index: 30; left: 0; }
+    
+    /* Cell Styles */
+    .date-cell { font-weight: 700; }
+    .city-tag { background: #e0f2fe; color: #0369a1; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; display: inline-block; margin-bottom: 4px; }
+    .night-cell.booked { background: #eff6ff; border-left: 3px solid #2563eb; }
+    .night-cell.flex { background: #fff7ed; border-left: 3px solid #f97316; }
+    .night-cell.empty { background: #fefce8; border-left: 3px solid #eab308; }
+    .btn-detail { width: 100%; margin-top: 8px; padding: 6px; background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 6px; cursor: pointer; color: #475569; font-size: 12px; display: flex; justify-content: center; gap: 4px; }
+    .btn-detail:hover { background: #e2e8f0; color: #1e293b; }
+
+    /* --- 3. Mobile 視圖 (全新卡片式設計) --- */
+    #mobile-view {
+      display: none;
+      max-width: 600px; margin: 0 auto; padding: 16px;
+      padding-bottom: 120px;
+    }
+    #mobile-view.active { display: block; animation: slideUp 0.4s; }
+    
+    .m-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .m-title { font-size: 20px; font-weight: 800; color: #1e293b; }
+    .m-subtitle { font-size: 12px; color: #64748b; }
+    .m-switch-btn { font-size: 12px; color: #2563eb; text-decoration: none; background: #eff6ff; padding: 4px 10px; border-radius: 99px; }
+
+    .day-card {
+      background: white; border-radius: 16px;
+      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+      margin-bottom: 20px; overflow: hidden;
+      border: 1px solid #e2e8f0;
+    }
+    .day-header {
+      background: #f8fafc; padding: 12px 16px; border-bottom: 1px solid #e2e8f0;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .d-date { font-weight: 700; color: #0f172a; font-size: 16px; }
+    .d-weekday { font-size: 12px; color: #64748b; background: #e2e8f0; padding: 2px 8px; border-radius: 99px; }
+    
+    .day-body { padding: 16px; }
+    .section-label { font-size: 11px; font-weight: 600; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; display: flex; align-items: center; gap: 4px; }
+    
+    .d-content-box { background: #f8fafc; border-radius: 8px; padding: 12px; margin-bottom: 16px; font-size: 14px; color: #334155; line-height: 1.5; }
+    .d-content-box[contenteditable] { border: 1px dashed transparent; transition: all 0.2s; }
+    .d-content-box[contenteditable]:focus { background: white; border-color: #3b82f6; outline: none; box-shadow: 0 0 0 2px rgba(59,130,246,0.1); }
+    
+    .d-acc-box {
+      display: flex; align-items: center; gap: 10px;
+      background: #eff6ff; color: #1e3a8a; padding: 10px 12px; border-radius: 8px; font-size: 13px; font-weight: 500;
+    }
+    .d-acc-box.flex { background: #fff7ed; color: #9a3412; }
+    .d-acc-box.empty { background: #fefce8; color: #854d0e; }
+    
+    .m-detail-btn {
+      width: 100%; border: 1px solid #e2e8f0; background: white; color: #64748b;
+      padding: 8px; border-radius: 8px; margin-top: 8px; font-size: 13px;
+      display: flex; justify-content: center; align-items: center; gap: 6px;
+    }
+
+    /* 預算區 (Mobile) */
+    .m-budget-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
+    .m-budget-item { background: #f8fafc; padding: 8px; border-radius: 6px; text-align: center; }
+    .m-b-label { font-size: 10px; color: #94a3b8; display: block; }
+    .m-b-val { font-size: 13px; font-weight: 600; color: #334155; border-bottom: 1px dashed #cbd5e1; display: inline-block; min-width: 40px; }
+
+    /* AI & Chat (Shared) */
+    .chat-widget { position: fixed; bottom: 20px; right: 20px; z-index: 200; }
+    .chat-toggle { width: 56px; height: 56px; border-radius: 50%; background: #2563eb; color: white; border: none; box-shadow: 0 4px 12px rgba(37,99,235,0.4); display: flex; justify-content: center; align-items: center; cursor: pointer; }
+    .chat-window { position: fixed; bottom: 85px; right: 20px; width: 300px; height: 400px; background: white; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); display: none; flex-direction: column; z-index: 201; }
+    .chat-window.open { display: flex; }
+    .chat-header { padding: 12px; border-bottom: 1px solid #eee; font-weight: 600; display: flex; justify-content: space-between; }
+    .chat-messages { flex: 1; padding: 12px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
+    .message { padding: 8px 12px; border-radius: 12px; font-size: 13px; max-width: 85%; }
+    .msg-ai { background: #f1f5f9; align-self: flex-start; }
+    .msg-user { background: #2563eb; color: white; align-self: flex-end; }
+    .chat-input-area { padding: 10px; display: flex; gap: 8px; border-top: 1px solid #eee; }
+    .chat-input { flex: 1; padding: 8px; border: 1px solid #ddd; border-radius: 20px; outline: none; }
+
+    /* Animations */
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+    /* Modal (Shared) */
+    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 3000; display: none; justify-content: center; align-items: center; }
+    .modal-overlay.active { display: flex; }
+    .modal-card { background: white; width: 90%; max-width: 500px; max-height: 80vh; border-radius: 16px; display: flex; flex-direction: column; }
+    .modal-body { padding: 20px; overflow-y: auto; }
+
+    @media (min-width: 769px) {
+       /* On large screens, mobile view is centered */
+       #mobile-view { border: 1px solid #e2e8f0; border-radius: 24px; margin-top: 20px; background: #fafafa; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 1. 入口選擇頁 (Portal) -->
+  <div id="portal-screen">
+    <div class="portal-title">2025 九州行</div>
+    <div class="portal-sub">請選擇瀏覽模式</div>
+    <div class="portal-cards">
+      <div class="mode-card" onclick="enterApp('mobile')">
+        <span class="material-symbols-outlined">smartphone</span>
+        <div class="mode-name">手機隨行版</div>
+        <div class="mode-desc">直式卡片・輕鬆滑動</div>
+      </div>
+      <div class="mode-card" onclick="enterApp('desktop')">
+        <span class="material-symbols-outlined">table_view</span>
+        <div class="mode-name">電腦戰情室</div>
+        <div class="mode-desc">全景表格・詳細規劃</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. Desktop View (Table) -->
+  <div id="desktop-view">
+    <div class="header-group">
+      <h1>🗺️ 行程戰情室 (Desktop)</h1>
+      <div class="controls">
+        <button class="btn-action" onclick="switchMode('mobile')"><span class="material-symbols-outlined">smartphone</span> 切換手機版</button>
+        <button class="btn-action" onclick="saveData()"><span class="material-symbols-outlined">save</span> 儲存</button>
+        <button class="btn-action" onclick="window.print()"><span class="material-symbols-outlined">print</span> 列印</button>
+      </div>
+    </div>
+    
+    <div class="table-container">
+      <table id="master-table">
+        <thead>
+          <tr>
+            <th>日期</th>
+            <th><div class='date-cell'>12/10 (三)</div>Day 1</th>
+            <th><div class='date-cell'>12/11 (四)</div>Day 2</th>
+            <th><div class='date-cell'>12/12 (五)</div>Day 3</th>
+            <th><div class='date-cell'>12/13 (六)</div>Day 4</th>
+            <th><div class='date-cell'>12/14 (日)</div>Day 5</th>
+            <th><div class='date-cell'>12/15 (一)</div>Day 6</th>
+            <th><div class='date-cell'>12/16 (二)</div>Day 7</th>
+            <th><div class='date-cell'>12/17 (三)</div>Day 8</th>
+            <th><div class='date-cell'>12/18 (四)</div>Day 9</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- 這些 ID 很重要，用於同步 -->
+          <tr id="row-time">
+            <td>時間流</td>
+            <td contenteditable="true" data-id="d1-time">🌙 0-6 準備<br>🌞 12-18 落地<br>🌆 燒肉</td>
+            <td contenteditable="true" data-id="d2-time">🌅 鶴見岳<br>🌞 大分午餐<br>🌆 頂樓溫泉</td>
+            <td contenteditable="true" data-id="d3-time">🌅 往由布院<br>🌞 金鱗湖<br>🌆 旅館晚餐</td>
+            <td contenteditable="true" data-id="d4-time">🌅 往浮羽<br>🌞 白壁街道<br>🌆 Hostel</td>
+            <td contenteditable="true" data-id="d5-time">🌅 往原鶴<br>🌞 泰泉閣<br>🌆 會席料理</td>
+            <td contenteditable="true" data-id="d6-time">🌅 往博多<br>🌞 市區逛街<br>🌆 中洲屋台</td>
+            <td contenteditable="true" data-id="d7-time">🌅 門司港<br>🌞 燒咖哩<br>🌆 超市補貨</td>
+            <td contenteditable="true" data-id="d8-time">🌅 大濠公園<br>🌞 最後採買<br>🌆 慶功宴</td>
+            <td contenteditable="true" data-id="d9-time">🌅 機場報到<br>🌞 抵達台灣<br>🌆 休息</td>
+          </tr>
+          <tr id="row-core">
+            <td>重點</td>
+            <td class="day-cell">
+              <div contenteditable="true" data-id="d1-core">IT750 15:00落地<br>機場巴士往別府</div>
+              <button class="btn-detail" onclick="openDetail('d1')"><span class="material-symbols-outlined">info</span> 詳情</button>
+            </td>
+            <td class="day-cell"><div contenteditable="true" data-id="d2-core">Live Cam看天氣<br>Blossom溫泉</div><button class="btn-detail" onclick="openDetail('d2')">詳情</button></td>
+            <td class="day-cell"><div contenteditable="true" data-id="d3-core">湯之坪散策<br>茶房 天井棧敷</div><button class="btn-detail" onclick="openDetail('d3')">詳情</button></td>
+            <td class="day-cell"><div contenteditable="true" data-id="d4-core">租腳踏車<br>MINOU BOOKS</div><button class="btn-detail" onclick="openDetail('d4')">詳情</button></td>
+            <td class="day-cell"><div contenteditable="true" data-id="d5-core">純放鬆日<br>叢林風呂</div><button class="btn-detail" onclick="openDetail('d5')">詳情</button></td>
+            <td class="day-cell"><div contenteditable="true" data-id="d6-core">ShinShin拉麵<br>天神地下街</div><button class="btn-detail" onclick="openDetail('d6')">詳情</button></td>
+            <td class="day-cell"><div contenteditable="true" data-id="d7-core">門司港懷舊<br>唐戶市場(若假日)</div><button class="btn-detail" onclick="openDetail('d7')">詳情</button></td>
+            <td class="day-cell"><div contenteditable="true" data-id="d8-core">FUK COFFEE<br>藥妝採買</div><button class="btn-detail" onclick="openDetail('d8')">詳情</button></td>
+            <td class="day-cell"><div contenteditable="true" data-id="d9-core">IT241 10:55起飛<br>預留2.5hr</div><button class="btn-detail" onclick="openDetail('d9')">詳情</button></td>
+          </tr>
+          <tr id="row-acc">
+            <td>住宿</td>
+            <td class="night-cell booked" contenteditable="true" data-id="d1-acc">別府 Nishitetsu</td>
+            <td class="night-cell booked" contenteditable="true" data-id="d2-acc">大分 Blossom</td>
+            <td class="night-cell booked" contenteditable="true" data-id="d3-acc">由布院 麓舎</td>
+            <td class="night-cell flex" contenteditable="true" data-id="d4-acc">浮羽 Farolito</td>
+            <td class="night-cell booked" contenteditable="true" data-id="d5-acc">原鶴 泰泉閣</td>
+            <td class="night-cell booked" contenteditable="true" data-id="d6-acc">博多 Mars</td>
+            <td class="night-cell booked" contenteditable="true" data-id="d7-acc">博多 Mars</td>
+            <td class="night-cell booked" contenteditable="true" data-id="d8-acc">博多 Mars</td>
+            <td class="night-cell empty" contenteditable="true" data-id="d9-acc">溫暖的家</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    
+    <!-- 預算表（Desktop） -->
+    <div style="margin-top:20px;">
+      <h3>預算估算 (JPY)</h3>
+      <table class="budget-table">
+         <thead><tr><th>項目</th><th>D1</th><th>D2</th><th>D3</th><th>D4</th><th>D5</th><th>D6</th><th>D7</th><th>D8</th><th>D9</th></tr></thead>
+         <tbody>
+           <tr><td>交通</td><td contenteditable="true" data-id="b-trans-1"></td><td contenteditable="true" data-id="b-trans-2"></td><td contenteditable="true" data-id="b-trans-3"></td><td contenteditable="true" data-id="b-trans-4"></td><td contenteditable="true" data-id="b-trans-5"></td><td contenteditable="true" data-id="b-trans-6"></td><td contenteditable="true" data-id="b-trans-7"></td><td contenteditable="true" data-id="b-trans-8"></td><td contenteditable="true" data-id="b-trans-9"></td></tr>
+           <tr><td>餐飲</td><td contenteditable="true" data-id="b-food-1"></td><td contenteditable="true" data-id="b-food-2"></td><td contenteditable="true" data-id="b-food-3"></td><td contenteditable="true" data-id="b-food-4"></td><td contenteditable="true" data-id="b-food-5"></td><td contenteditable="true" data-id="b-food-6"></td><td contenteditable="true" data-id="b-food-7"></td><td contenteditable="true" data-id="b-food-8"></td><td contenteditable="true" data-id="b-food-9"></td></tr>
+         </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- 3. Mobile View (Dynamic Cards) -->
+  <div id="mobile-view">
+    <div class="m-header">
+      <div>
+        <div class="m-title">九州隨行卡</div>
+        <div class="m-subtitle">2025/12/10 - 12/18</div>
+      </div>
+      <a href="#" class="m-switch-btn" onclick="switchMode('desktop')">切換電腦版</a>
+    </div>
+    
+    <div id="mobile-card-container">
+      <!-- JS 會自動在這裡生成卡片 -->
+    </div>
+  </div>
+
+  <!-- Detail Modal -->
+  <div class="modal-overlay" id="detailModal" onclick="closeDetail(event)">
+    <div class="modal-card">
+      <div style="padding:16px; border-bottom:1px solid #eee; font-weight:700; font-size:18px;" id="modalTitle">詳情</div>
+      <div class="modal-body" id="modalContent"></div>
+      <div style="padding:10px; text-align:center; border-top:1px solid #eee;">
+        <button onclick="closeDetail(null)" style="padding:8px 20px; background:#f1f5f9; border:none; border-radius:6px;">關閉</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Chat Widget -->
+  <div class="chat-widget">
+    <button class="chat-toggle" onclick="toggleChat()"><span class="material-symbols-outlined">chat_spark</span></button>
+  </div>
+  <div class="chat-window" id="chatWindow">
+    <div class="chat-header"><span>AI 導遊</span><span onclick="toggleChat()" style="cursor:pointer">✕</span></div>
+    <div class="chat-messages" id="chatMessages"><div class="message msg-ai">我是你的隨行導遊，有急事可以問我！</div></div>
+    <div class="chat-input-area"><input class="chat-input" id="chatInput" placeholder="輸入問題..."><button onclick="sendMessage()">送出</button></div>
+  </div>
+
+  <script>
+    const apiKey = ""; // 請在此填入您的 Gemini API Key
+    const apiBaseUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent";
+    const STORAGE_KEY = 'kyushu_v3_dual';
+
+    // --- 1. Mode Switching Logic ---
+    function enterApp(mode) {
+      document.getElementById('portal-screen').classList.add('hidden');
+      switchMode(mode);
+    }
+
+    function switchMode(mode) {
+      const desktop = document.getElementById('desktop-view');
+      const mobile = document.getElementById('mobile-view');
+      
+      // Sync data before switching
+      if (mode === 'mobile') {
+        renderMobileCards(); // 從表格讀取資料生成卡片
+      }
+      
+      if (mode === 'desktop') {
+        desktop.classList.add('active');
+        mobile.classList.remove('active');
+      } else {
+        desktop.classList.remove('active');
+        mobile.classList.add('active');
+      }
+      window.scrollTo(0, 0);
+    }
+
+    // --- 2. Data & Sync Logic ---
+    // 這是核心：手機版卡片是動態生成的，但編輯時會寫回表格，然後存到 LocalStorage
+    const days = [
+      {id:1, date:'12/10', w:'三'}, {id:2, date:'12/11', w:'四'}, {id:3, date:'12/12', w:'五'},
+      {id:4, date:'12/13', w:'六'}, {id:5, date:'12/14', w:'日'}, {id:6, date:'12/15', w:'一'},
+      {id:7, date:'12/16', w:'二'}, {id:8, date:'12/17', w:'三'}, {id:9, date:'12/18', w:'四'}
+    ];
+
+    function renderMobileCards() {
+      const container = document.getElementById('mobile-card-container');
+      container.innerHTML = ''; // Clear current
+
+      days.forEach(day => {
+        // 從 Desktop 表格抓取最新資料
+        const timeVal = document.querySelector(`[data-id="d${day.id}-time"]`).innerHTML;
+        const coreVal = document.querySelector(`[data-id="d${day.id}-core"]`).innerHTML;
+        const accVal = document.querySelector(`[data-id="d${day.id}-acc"]`).innerHTML;
+        
+        // Budget
+        const trans = document.querySelector(`[data-id="b-trans-${day.id}"]`).innerText;
+        const food = document.querySelector(`[data-id="b-food-${day.id}"]`).innerText;
+
+        // Build Card HTML
+        const card = document.createElement('div');
+        card.className = 'day-card';
+        card.innerHTML = `
+          <div class="day-header">
+            <span class="d-date">Day ${day.id} <small style="font-weight:400; font-size:14px; color:#64748b">${day.date}</small></span>
+            <span class="d-weekday">${day.w}</span>
+          </div>
+          <div class="day-body">
+            <div class="section-label"><span class="material-symbols-outlined" style="font-size:14px">schedule</span> 時間流</div>
+            <div class="d-content-box" contenteditable="true" oninput="syncToTable('d${day.id}-time', this.innerHTML)">${timeVal}</div>
+            
+            <div class="section-label"><span class="material-symbols-outlined" style="font-size:14px">flag</span> 重點攻略</div>
+            <div class="d-content-box" contenteditable="true" oninput="syncToTable('d${day.id}-core', this.innerHTML)">${coreVal}</div>
+            <button class="m-detail-btn" onclick="openDetail('d${day.id}')"><span class="material-symbols-outlined" style="font-size:16px">menu_book</span> 查看詳細攻略</button>
+            
+            <div style="margin-top:16px;">
+              <div class="section-label"><span class="material-symbols-outlined" style="font-size:14px">bed</span> 住宿</div>
+              <div class="d-acc-box" contenteditable="true" oninput="syncToTable('d${day.id}-acc', this.innerHTML)">${accVal}</div>
+            </div>
+
+            <div style="margin-top:16px; border-top:1px dashed #e2e8f0; padding-top:8px;">
+              <div class="section-label">預算紀錄</div>
+              <div class="m-budget-grid">
+                 <div class="m-budget-item"><span class="m-b-label">交通</span><span class="m-b-val" contenteditable="true" oninput="syncToTable('b-trans-${day.id}', this.innerText)">${trans}</span></div>
+                 <div class="m-budget-item"><span class="m-b-label">餐飲</span><span class="m-b-val" contenteditable="true" oninput="syncToTable('b-food-${day.id}', this.innerText)">${food}</span></div>
+              </div>
+            </div>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    // Sync function: Mobile Edit -> Update Table DOM -> Save to LocalStorage
+    window.syncToTable = function(dataId, val) {
+      const target = document.querySelector(`[data-id="${dataId}"]`);
+      if(target) {
+        if(dataId.startsWith('b-')) target.innerText = val; // Budget uses innerText
+        else target.innerHTML = val; // Content uses innerHTML
+        saveData(); // Trigger auto-save
+      }
+    };
+
+    // LocalStorage Logic
+    function initAutoSave() {
+      const savedData = localStorage.getItem(STORAGE_KEY);
+      if (savedData) {
+        try {
+          const data = JSON.parse(savedData);
+          Object.keys(data).forEach(id => {
+            const el = document.querySelector(`[data-id="${id}"]`);
+            if (el) {
+               if(id.startsWith('b-')) el.innerText = data[id];
+               else el.innerHTML = data[id];
+            }
+          });
+        } catch (e) { console.error(e); }
+      }
+      // Listen to table edits too
+      document.getElementById('master-table').addEventListener('input', debounce(saveData, 1000));
+      document.querySelector('.budget-table').addEventListener('input', debounce(saveData, 1000));
+    }
+
+    function saveData() {
+      const data = {};
+      document.querySelectorAll('[data-id]').forEach(el => {
+         if(el.getAttribute('data-id').startsWith('b-')) data[el.getAttribute('data-id')] = el.innerText;
+         else data[el.getAttribute('data-id')] = el.innerHTML;
+      });
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    }
+    
+    function debounce(func, wait) { let timeout; return function(...args) { clearTimeout(timeout); timeout = setTimeout(() => func.apply(this, args), wait); }; }
+
+    document.addEventListener('DOMContentLoaded', initAutoSave);
+
+    // --- 3. Detail & Chat (Shared) ---
+    // Restore Detail Data
+    const itineraryDetails = {
+      d1: `<ul><li><strong>航班：</strong>IT750 15:00落地。</li><li><strong>交通：</strong>巴士往別府北浜(50分)。</li><li><strong>晚餐：</strong>焼肉 一力(排隊店)。</li></ul>`,
+      d2: `<ul><li><strong>纜車：</strong>看LiveCam決定。</li><li><strong>午餐：</strong>とよ常 天丼。</li><li><strong>重點：</strong>City Spa露天溫泉。</li></ul>`,
+      d3: `<ul><li><strong>散策：</strong>湯之坪街道+金鱗湖。</li><li><strong>咖啡：</strong>茶房 天井棧敷。</li></ul>`,
+      d4: `<ul><li><strong>浮羽：</strong>吉井白壁租單車。</li><li><strong>住宿：</strong>Farolito古民家。</li></ul>`,
+      d5: `<ul><li><strong>原鶴：</strong>泰泉閣叢林風呂。</li><li><strong>行程：</strong>純放鬆，吃會席。</li></ul>`,
+      d6: `<ul><li><strong>博多：</strong>天神/運河城。</li><li><strong>晚餐：</strong>屋台關東煮。</li></ul>`,
+      d7: `<ul><li><strong>門司港：</strong>燒咖哩。</li><li><strong>唐戶市場：</strong>僅週末有壽司市集。</li></ul>`,
+      d8: `<ul><li><strong>市區：</strong>大濠公園+FUK COFFEE。</li><li><strong>採買：</strong>藥妝/Uniqlo。</li></ul>`,
+      d9: `<ul><li><strong>返程：</strong>IT241 10:55起飛。</li><li><strong>注意：</strong>08:30出發去機場。</li></ul>`
+    };
+
+    function openDetail(dayId) {
+      document.getElementById('modalTitle').innerText = `Day ${dayId.replace('d','')} 詳情`;
+      document.getElementById('modalContent').innerHTML = itineraryDetails[dayId] || '無資料';
+      document.getElementById('detailModal').classList.add('active');
+    }
+    function closeDetail(e) {
+      if(e && e.target !== e.currentTarget) return;
+      document.getElementById('detailModal').classList.remove('active');
+    }
+
+    // Chat
+    function toggleChat() { document.getElementById('chatWindow').classList.toggle('open'); }
+    async function sendMessage() {
+       const input = document.getElementById('chatInput');
+       const val = input.value.trim();
+       if(!val) return;
+       const box = document.getElementById('chatMessages');
+       box.innerHTML += `<div class="message msg-user">${val}</div>`;
+       input.value = '';
+       box.scrollTop = box.scrollHeight;
+       
+       // Fake AI response or Real API if Key provided
+       const loading = `<div class="message msg-ai" id="loading">...</div>`;
+       box.innerHTML += loading;
+       
+       try {
+         const context = document.getElementById('master-table').innerText;
+         const payload = { contents: [{ parts: [{ text: `Context:${context.substring(0,1000)}. Q:${val}. Zh-TW.` }] }] };
+         const res = await fetch(`${apiBaseUrl}?key=${apiKey}`, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload)});
+         const data = await res.json();
+         const reply = data.candidates?.[0]?.content?.parts?.[0]?.text || "收到！";
+         document.getElementById('loading').remove();
+         box.innerHTML += `<div class="message msg-ai">${reply}</div>`;
+       } catch(e) {
+         document.getElementById('loading').remove();
+         box.innerHTML += `<div class="message msg-ai">連線問題，請檢查 Key。</div>`;
+       }
+       box.scrollTop = box.scrollHeight;
+    }
+  </script>
+</body>
+</html>
